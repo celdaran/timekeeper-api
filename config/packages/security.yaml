@@ -1,29 +1,44 @@
 security:
-    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
     password_hashers:
+        # Keep this if you need password hashing for other parts, or remove if not.
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
-    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+
     providers:
-        users_in_memory: { memory: null }
+        api_key_user_provider:
+            memory:
+                users:
+                    # Make sure these match the keys in ApiKeyAuthenticator::API_KEYS
+                    api_client: { roles: ['ROLE_API_CLIENT'] }
+                    api_admin: { roles: ['ROLE_API_CLIENT', 'ROLE_API_ADMIN'] }
+
+        # If you still have a database user provider for other parts of your app, keep it.
+        # For a pure API, you might only need api_key_user_provider.
+        # app_user_provider:
+        #     entity:
+        #         class: App\Entity\User
+        #         property: email
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            lazy: true
-            provider: users_in_memory
 
-            # activate different ways to authenticate
-            # https://symfony.com/doc/current/security.html#the-firewall
+        api: # Make sure this firewall is named 'api' or whatever you're using
+            pattern: ^/api # Crucial: This pattern must match your API paths
+            stateless: true
+            custom_authenticator: App\Security\ApiKeyAuthenticator
+            provider: api_key_user_provider # Ensure this points to the right provider
 
-            # https://symfony.com/doc/current/security/impersonating_user.html
-            # switch_user: true
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        # This path *must* match the URL the request is coming in on.
+        # If your route is /api/v1/endpoint, this should be ^/api/
+        # or if you need more granularity, it could be ^/api/v1/
+        - { path: ^/api,       roles: ROLE_API_CLIENT }
+        # For admin endpoints
+        - { path: ^/api/v1/admin, roles: ROLE_API_ADMIN } # Example if you have admin endpoints
+
+        # Example for admin-only endpoints:
+        # - { path: ^/api/admin, roles: ROLE_API_ADMIN }
 
 when@test:
     security:

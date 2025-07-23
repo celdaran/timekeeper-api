@@ -30,3 +30,9 @@ services:
             $dsn: '%database_dsn%'
             $username: '%database_user%'
             $password: '%database_password%'
+
+
+    App\Security\ApiKeyAuthenticator:
+        arguments:
+            $clientApiKeysString: '%env(API_CLIENT_KEYS)%'
+            $adminApiKeysString: '%env(API_ADMIN_KEYS)%'

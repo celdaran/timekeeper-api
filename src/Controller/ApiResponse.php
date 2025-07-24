@@ -2,7 +2,7 @@
 
 class ApiResponse
 {
-    public static function success(array $payload) : array {
+    public static function success(array $payload = []) : array {
         return ApiResponse::payload('ok', $payload);
     }
 

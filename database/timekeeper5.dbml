@@ -1,0 +1,281 @@
+
+Table "_schema" {
+  "schema_id" INTEGER [pk, not null, increment]
+  "schema_version" VARCHAR(32) [not null, unique]
+  "schema_descr" TEXT [not null]
+  "applied_at" DATETIME [not null, default: `current_timestamp`]
+  "applied_by" VARCHAR(256) [not null]
+  "status_id" INT [not null]
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+  Indexes {
+    schema_version [unique, name: "idx_schema_version"]
+  }
+}
+
+Table "ref_date_preset" {
+  "ref_date_preset_id" INTEGER [pk, not null, increment]
+  "ref_date_preset_name" TEXT [not null]
+  "ref_date_preset_descr" TEXT
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+}
+
+Table "ref_group_by" {
+  "ref_group_by_id" INTEGER [pk, not null, increment]
+  "ref_group_by_name" TEXT [not null]
+  "ref_group_by_descr" TEXT
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+}
+
+Table "ref_time_display" {
+  "ref_time_display_id" INTEGER [pk, not null, increment]
+  "ref_time_display_name" TEXT [not null]
+  "ref_time_display_descr" TEXT
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+}
+
+Table "ref_time_zone" {
+  "ref_time_zone_id" INTEGER [pk, not null, increment]
+  "ref_time_zone_name" TEXT [not null]
+  "ref_time_zone_descr" TEXT
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+}
+
+Table "users" {
+  "user_id" INTEGER [pk, not null, increment]
+  "user_name" TEXT [not null]
+  "user_password" TEXT [not null]
+  "user_descr" TEXT
+  "user_email" TEXT
+  "project_id__last" INT
+  "location_id__last" INT
+  "is_hidden" BOOLEAN [not null, default: false]
+  "is_deleted" BOOLEAN [not null, default: false]
+  "hidden_at" DATETIME
+  "deleted_at" DATETIME
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+
+  Indexes {
+    user_name [unique, name: "idx_user_name"]
+    user_email [unique, name: "idx_user_email"]
+  }
+}
+
+Table "profile" {
+  "profile_id" INTEGER [pk, not null, increment]
+  "profile_name" VARCHAR(256) [not null]
+  "profile_descr" TEXT
+  "user_id" INTEGER [not null]
+  "is_hidden" BOOLEAN [not null, default: false]
+  "is_deleted" BOOLEAN [not null, default: false]
+  "hidden_at" DATETIME
+  "deleted_at" DATETIME
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+
+  Indexes {
+    (user_id, profile_name) [unique, name: "idx_profile_name"]
+  }
+}
+
+Table "folder" {
+  "folder_id" INTEGER [pk, not null, increment]
+  "folder_name" TEXT [not null]
+  "folder_descr" TEXT
+  "profile_id" INTEGER [not null]
+  "folder_id__parent" INTEGER
+  "sort_order" INTEGER [not null, default: 0]
+  "is_open" BOOLEAN [not null, default: true]
+  "is_hidden" BOOLEAN [not null, default: false]
+  "is_deleted" BOOLEAN [not null, default: false]
+  "hidden_at" DATETIME
+  "deleted_at" DATETIME
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+
+  Indexes {
+    profile_id [name: "idx_folder_profile_id"]
+    folder_id__parent [name: "idx_folder_parent_id"]
+    (folder_id__parent, folder_name) [unique, name: "idx_folder_name"]
+  }
+}
+
+Table "activity" {
+  "activity_id" INTEGER [pk, not null, increment]
+  "activity_name" VARCHAR(256) [not null]
+  "activity_descr" TEXT
+  "profile_id" INTEGER [not null]
+  "folder_id" INTEGER [not null]
+  "sort_order" INTEGER [not null, default: 0]
+  "is_hidden" BOOLEAN [not null, default: false]
+  "is_deleted" BOOLEAN [not null, default: false]
+  "hidden_at" DATETIME
+  "deleted_at" DATETIME
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+
+  Indexes {
+    profile_id [name: "idx_activity_profile_id"]
+    folder_id [name: "idx_activity_folder_id"]
+    (folder_id, activity_name) [unique, name: "idx_activity_name"]
+  }
+}
+
+Table "location" {
+  "location_id" INTEGER [pk, not null, increment]
+  "location_name" VARCHAR(256) [not null]
+  "location_descr" TEXT
+  "user_id" INTEGER [not null]
+  "folder_id" INTEGER [not null]
+  "sort_order" INTEGER [not null, default: 0]
+  "is_hidden" BOOLEAN [not null, default: false]
+  "is_deleted" BOOLEAN [not null, default: false]
+  "hidden_at" DATETIME
+  "deleted_at" DATETIME
+  "ref_time_zone_id" INTEGER [not null]
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+
+  Indexes {
+    user_id [name: "idx_location_user_id"]
+    folder_id [name: "idx_location_folder_id"]
+    (folder_id, location_name) [unique, name: "idx_location_name"]
+  }
+}
+
+Table "project" {
+  "project_id" INTEGER [pk, not null, increment]
+  "project_name" VARCHAR(256) [not null]
+  "project_descr" TEXT
+  "profile_id" INTEGER [not null]
+  "folder_id" INTEGER [not null]
+  "sort_order" INTEGER [not null, default: 0]
+  "is_hidden" BOOLEAN [not null, default: false]
+  "is_deleted" BOOLEAN [not null, default: false]
+  "hidden_at" DATETIME
+  "deleted_at" DATETIME
+  "activity_id__last" INTEGER
+  "location_id__last" INTEGER
+  "external_ident" TEXT
+  "external_url" TEXT
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+
+  Indexes {
+    profile_id [name: "idx_project_profile_id"]
+    folder_id [name: "idx_project_folder_id"]
+    (folder_id, project_name) [unique, name: "idx_project_name"]
+  }
+}
+
+Table "tag" {
+  "tag_id" INTEGER [pk, not null, increment]
+  "tag_name" VARCHAR(256) [not null]
+  "tag_descr" TEXT
+  "profile_id" INTEGER [not null]
+  "folder_id" INTEGER [not null]
+  "sort_order" INTEGER [not null, default: 0]
+  "is_hidden" BOOLEAN [not null, default: false]
+  "is_deleted" BOOLEAN [not null, default: false]
+  "hidden_at" DATETIME
+  "deleted_at" DATETIME
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+
+  Indexes {
+    profile_id [name: "idx_tag_profile_id"]
+    folder_id [name: "idx_tag_folder_id"]
+    (folder_id, tag_name) [unique, name: "idx_tag_name"]
+  }
+}
+
+Table "journal" {
+  "journal_id" INTEGER [pk, not null, increment]
+  "profile_id" INTEGER [not null]
+  "start_time" DATETIME [not null]
+  "stop_time" DATETIME [not null]
+  "seconds" INTEGER [not null]
+  "memo" TEXT
+  "project_id" INTEGER [not null]
+  "activity_id" INTEGER [not null]
+  "location_id" INTEGER [not null]
+  "is_locked" BOOLEAN [not null, default: false]
+  "is_ignored" BOOLEAN [not null, default: false]
+  "is_reconciled" BOOLEAN [not null, default: false]
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+
+  Indexes {
+    profile_id [name: "idx_journal_profile_id"]
+    project_id [name: "idx_journal_project_id"]
+    activity_id [name: "idx_journal_activity_id"]
+    location_id [name: "idx_journal_location_id"]
+  }
+}
+
+Table "journal_tag" {
+  "journal_tag_id" INTEGER [pk, not null, increment]
+  "journal_id" INTEGER [not null]
+  "tag_id" INTEGER [not null]
+}
+
+Table "project_group" {
+  "project_group_id" INTEGER [pk, not null, increment]
+  "project_group_name" TEXT [not null]
+  "project_group_descr" TEXT
+  "user_id" INTEGER [not null]
+  "project_id" INTEGER [not null]
+  "created_at" DATETIME [not null, default: `current_timestamp`]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+}
+
+Ref:"users"."user_id" < "profile"."user_id"
+
+Ref:"profile"."profile_id" < "folder"."profile_id"
+
+Ref:"folder"."folder_id" < "folder"."folder_id__parent"
+
+Ref:"profile"."profile_id" < "activity"."profile_id"
+
+Ref:"folder"."folder_id" < "activity"."folder_id"
+
+Ref:"users"."user_id" < "location"."user_id"
+
+Ref:"folder"."folder_id" < "location"."folder_id"
+
+Ref:"ref_time_zone"."ref_time_zone_id" < "location"."ref_time_zone_id"
+
+Ref:"profile"."profile_id" < "project"."profile_id"
+
+Ref:"folder"."folder_id" < "project"."folder_id"
+
+Ref:"project"."project_id" < "users"."project_id__last"
+
+Ref:"activity"."activity_id" < "project"."activity_id__last"
+
+Ref:"location"."location_id" < "users"."location_id__last"
+
+Ref:"profile"."profile_id" < "tag"."profile_id"
+
+Ref:"folder"."folder_id" < "tag"."folder_id"
+
+Ref:"profile"."profile_id" < "journal"."profile_id"
+
+Ref:"project"."project_id" < "journal"."project_id"
+
+Ref:"activity"."activity_id" < "journal"."activity_id"
+
+Ref:"location"."location_id" < "journal"."location_id"
+
+Ref:"journal"."journal_id" < "journal_tag"."journal_id"
+
+Ref:"tag"."tag_id" < "journal_tag"."tag_id"
+
+Ref:"users"."user_id" < "project_group"."user_id"
+
+Ref:"project"."project_id" < "project_group"."project_id"

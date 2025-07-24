@@ -1,0 +1,305 @@
+-- ----------------------------------------------------------------------
+-- Schema: Timekeeper
+-- Version: 5.1.0
+-- ----------------------------------------------------------------------
+
+CREATE TABLE `_schema` (
+    `schema_id`      INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `schema_version` VARCHAR(32) UNIQUE  NOT NULL,
+    `schema_descr`   TEXT                NOT NULL,
+    `applied_at`     DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `applied_by`     VARCHAR(256)        NOT NULL,
+    `status_id`      INT                 NOT NULL,
+    `created_at`     DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`    DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `ref_date_preset` (
+    `ref_date_preset_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `ref_date_preset_name`  TEXT                NOT NULL,
+    `ref_date_preset_descr` TEXT,
+    `created_at`            DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`           DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `ref_group_by` (
+    `ref_group_by_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `ref_group_by_name`  TEXT                NOT NULL,
+    `ref_group_by_descr` TEXT,
+    `created_at`         DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`        DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `ref_time_display` (
+    `ref_time_display_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `ref_time_display_name`  TEXT                NOT NULL,
+    `ref_time_display_descr` TEXT,
+    `created_at`             DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`            DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `ref_time_zone` (
+    `ref_time_zone_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `ref_time_zone_name`  TEXT                NOT NULL,
+    `ref_time_zone_descr` TEXT,
+    `created_at`          DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`         DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `users` (
+    `user_id`           INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `user_name`         TEXT                NOT NULL,
+    `user_password`     TEXT                NOT NULL,
+    `user_descr`        TEXT,
+    `user_email`        TEXT,
+    `project_id__last`  INT,
+    `location_id__last` INT,
+    `is_hidden`         BOOLEAN             NOT NULL DEFAULT FALSE,
+    `is_deleted`        BOOLEAN             NOT NULL DEFAULT FALSE,
+    `hidden_at`         DATETIME,
+    `deleted_at`        DATETIME,
+    `created_at`        DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`       DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `profile` (
+    `profile_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `profile_name`  VARCHAR(256)        NOT NULL,
+    `profile_descr` TEXT,
+    `user_id`       INTEGER             NOT NULL,
+    `is_hidden`     BOOLEAN             NOT NULL DEFAULT FALSE,
+    `is_deleted`    BOOLEAN             NOT NULL DEFAULT FALSE,
+    `hidden_at`     DATETIME,
+    `deleted_at`    DATETIME,
+    `created_at`    DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`   DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `folder` (
+    `folder_id`         INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `folder_name`       TEXT                NOT NULL,
+    `folder_descr`      TEXT,
+    `profile_id`        INTEGER             NOT NULL,
+    `folder_id__parent` INTEGER,
+    `sort_order`        INTEGER             NOT NULL DEFAULT 0,
+    `is_open`           BOOLEAN             NOT NULL DEFAULT TRUE,
+    `is_hidden`         BOOLEAN             NOT NULL DEFAULT FALSE,
+    `is_deleted`        BOOLEAN             NOT NULL DEFAULT FALSE,
+    `hidden_at`         DATETIME,
+    `deleted_at`        DATETIME,
+    `created_at`        DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`       DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `activity` (
+    `activity_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `activity_name`  VARCHAR(256)        NOT NULL,
+    `activity_descr` TEXT,
+    `profile_id`     INTEGER             NOT NULL,
+    `folder_id`      INTEGER             NOT NULL,
+    `sort_order`     INTEGER             NOT NULL DEFAULT 0,
+    `is_hidden`      BOOLEAN             NOT NULL DEFAULT FALSE,
+    `is_deleted`     BOOLEAN             NOT NULL DEFAULT FALSE,
+    `hidden_at`      DATETIME,
+    `deleted_at`     DATETIME,
+    `created_at`     DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`    DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `location` (
+    `location_id`      INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `location_name`    VARCHAR(256)        NOT NULL,
+    `location_descr`   TEXT,
+    `user_id`          INTEGER             NOT NULL,
+    `folder_id`        INTEGER             NOT NULL,
+    `sort_order`       INTEGER             NOT NULL DEFAULT 0,
+    `is_hidden`        BOOLEAN             NOT NULL DEFAULT FALSE,
+    `is_deleted`       BOOLEAN             NOT NULL DEFAULT FALSE,
+    `hidden_at`        DATETIME,
+    `deleted_at`       DATETIME,
+    `ref_time_zone_id` INTEGER             NOT NULL,
+    `created_at`       DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`      DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `project` (
+    `project_id`        INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `project_name`      VARCHAR(256)        NOT NULL,
+    `project_descr`     TEXT,
+    `profile_id`        INTEGER             NOT NULL,
+    `folder_id`         INTEGER             NOT NULL,
+    `sort_order`        INTEGER             NOT NULL DEFAULT 0,
+    `is_hidden`         BOOLEAN             NOT NULL DEFAULT FALSE,
+    `is_deleted`        BOOLEAN             NOT NULL DEFAULT FALSE,
+    `hidden_at`         DATETIME,
+    `deleted_at`        DATETIME,
+    `activity_id__last` INTEGER,
+    `location_id__last` INTEGER,
+    `external_ident`    TEXT,
+    `external_url`      TEXT,
+    `created_at`        DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`       DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `tag` (
+    `tag_id`      INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `tag_name`    VARCHAR(256)        NOT NULL,
+    `tag_descr`   TEXT,
+    `profile_id`  INTEGER             NOT NULL,
+    `folder_id`   INTEGER             NOT NULL,
+    `sort_order`  INTEGER             NOT NULL DEFAULT 0,
+    `is_hidden`   BOOLEAN             NOT NULL DEFAULT FALSE,
+    `is_deleted`  BOOLEAN             NOT NULL DEFAULT FALSE,
+    `hidden_at`   DATETIME,
+    `deleted_at`  DATETIME,
+    `created_at`  DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at` DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `journal` (
+    `journal_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `profile_id`    INTEGER             NOT NULL,
+    `start_time`    DATETIME            NOT NULL,
+    `stop_time`     DATETIME            NOT NULL,
+    `seconds`       INTEGER             NOT NULL,
+    `memo`          TEXT,
+    `project_id`    INTEGER             NOT NULL,
+    `activity_id`   INTEGER             NOT NULL,
+    `location_id`   INTEGER             NOT NULL,
+    `is_locked`     BOOLEAN             NOT NULL DEFAULT FALSE,
+    `is_ignored`    BOOLEAN             NOT NULL DEFAULT FALSE,
+    `is_reconciled` BOOLEAN             NOT NULL DEFAULT FALSE,
+    `created_at`    DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`   DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `journal_tag` (
+    `journal_tag_id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `journal_id`     INTEGER             NOT NULL,
+    `tag_id`         INTEGER             NOT NULL
+);
+
+CREATE TABLE `project_group` (
+    `project_group_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `project_group_name`  TEXT                NOT NULL,
+    `project_group_descr` TEXT,
+    `user_id`             INTEGER             NOT NULL,
+    `project_id`          INTEGER             NOT NULL,
+    `created_at`          DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`         DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE UNIQUE INDEX `idx_schema_version` ON `_schema` (`schema_version`);
+
+CREATE UNIQUE INDEX `idx_user_name` ON `users` (`user_name`);
+
+CREATE UNIQUE INDEX `idx_user_email` ON `users` (`user_email`);
+
+CREATE UNIQUE INDEX `idx_profile_name` ON `profile` (`user_id`, `profile_name`);
+
+CREATE INDEX `idx_folder_profile_id` ON `folder` (`profile_id`);
+
+CREATE INDEX `idx_folder_parent_id` ON `folder` (`folder_id__parent`);
+
+CREATE UNIQUE INDEX `idx_folder_name` ON `folder` (`folder_id__parent`, `folder_name`);
+
+CREATE INDEX `idx_activity_profile_id` ON `activity` (`profile_id`);
+
+CREATE INDEX `idx_activity_folder_id` ON `activity` (`folder_id`);
+
+CREATE UNIQUE INDEX `idx_activity_name` ON `activity` (`folder_id`, `activity_name`);
+
+CREATE INDEX `idx_location_user_id` ON `location` (`user_id`);
+
+CREATE INDEX `idx_location_folder_id` ON `location` (`folder_id`);
+
+CREATE UNIQUE INDEX `idx_location_name` ON `location` (`folder_id`, `location_name`);
+
+CREATE INDEX `idx_project_profile_id` ON `project` (`profile_id`);
+
+CREATE INDEX `idx_project_folder_id` ON `project` (`folder_id`);
+
+CREATE UNIQUE INDEX `idx_project_name` ON `project` (`folder_id`, `project_name`);
+
+CREATE INDEX `idx_tag_profile_id` ON `tag` (`profile_id`);
+
+CREATE INDEX `idx_tag_folder_id` ON `tag` (`folder_id`);
+
+CREATE UNIQUE INDEX `idx_tag_name` ON `tag` (`folder_id`, `tag_name`);
+
+CREATE INDEX `idx_journal_profile_id` ON `journal` (`profile_id`);
+
+CREATE INDEX `idx_journal_project_id` ON `journal` (`project_id`);
+
+CREATE INDEX `idx_journal_activity_id` ON `journal` (`activity_id`);
+
+CREATE INDEX `idx_journal_location_id` ON `journal` (`location_id`);
+
+ALTER TABLE `profile`
+    ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+ALTER TABLE `folder`
+    ADD FOREIGN KEY (`profile_id`) REFERENCES `profile` (`profile_id`);
+
+ALTER TABLE `folder`
+    ADD FOREIGN KEY (`folder_id__parent`) REFERENCES `folder` (`folder_id`);
+
+ALTER TABLE `activity`
+    ADD FOREIGN KEY (`profile_id`) REFERENCES `profile` (`profile_id`);
+
+ALTER TABLE `activity`
+    ADD FOREIGN KEY (`folder_id`) REFERENCES `folder` (`folder_id`);
+
+ALTER TABLE `location`
+    ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+ALTER TABLE `location`
+    ADD FOREIGN KEY (`folder_id`) REFERENCES `folder` (`folder_id`);
+
+ALTER TABLE `location`
+    ADD FOREIGN KEY (`ref_time_zone_id`) REFERENCES `ref_time_zone` (`ref_time_zone_id`);
+
+ALTER TABLE `project`
+    ADD FOREIGN KEY (`profile_id`) REFERENCES `profile` (`profile_id`);
+
+ALTER TABLE `project`
+    ADD FOREIGN KEY (`folder_id`) REFERENCES `folder` (`folder_id`);
+
+ALTER TABLE `users`
+    ADD FOREIGN KEY (`project_id__last`) REFERENCES `project` (`project_id`);
+
+ALTER TABLE `project`
+    ADD FOREIGN KEY (`activity_id__last`) REFERENCES `activity` (`activity_id`);
+
+ALTER TABLE `users`
+    ADD FOREIGN KEY (`location_id__last`) REFERENCES `location` (`location_id`);
+
+ALTER TABLE `tag`
+    ADD FOREIGN KEY (`profile_id`) REFERENCES `profile` (`profile_id`);
+
+ALTER TABLE `tag`
+    ADD FOREIGN KEY (`folder_id`) REFERENCES `folder` (`folder_id`);
+
+ALTER TABLE `journal`
+    ADD FOREIGN KEY (`profile_id`) REFERENCES `profile` (`profile_id`);
+
+ALTER TABLE `journal`
+    ADD FOREIGN KEY (`project_id`) REFERENCES `project` (`project_id`);
+
+ALTER TABLE `journal`
+    ADD FOREIGN KEY (`activity_id`) REFERENCES `activity` (`activity_id`);
+
+ALTER TABLE `journal`
+    ADD FOREIGN KEY (`location_id`) REFERENCES `location` (`location_id`);
+
+ALTER TABLE `journal_tag`
+    ADD FOREIGN KEY (`journal_id`) REFERENCES `journal` (`journal_id`);
+
+ALTER TABLE `journal_tag`
+    ADD FOREIGN KEY (`tag_id`) REFERENCES `tag` (`tag_id`);
+
+ALTER TABLE `project_group`
+    ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+
+ALTER TABLE `project_group`
+    ADD FOREIGN KEY (`project_id`) REFERENCES `project` (`project_id`);

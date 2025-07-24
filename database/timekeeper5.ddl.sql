@@ -1,8 +1,3 @@
--- ----------------------------------------------------------------------
--- Schema: Timekeeper
--- Version: 5.1.0
--- ----------------------------------------------------------------------
-
 CREATE TABLE `_schema` (
     `schema_id`      INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `schema_version` VARCHAR(32) UNIQUE  NOT NULL,
@@ -46,12 +41,12 @@ CREATE TABLE `ref_time_zone` (
     `modified_at`         DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
-CREATE TABLE `users` (
-    `user_id`           INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `user_name`         TEXT                NOT NULL,
-    `user_password`     TEXT                NOT NULL,
-    `user_descr`        TEXT,
-    `user_email`        TEXT,
+CREATE TABLE `account` (
+    `account_id`        INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `account_username`  TEXT                NOT NULL,
+    `account_password`  TEXT                NOT NULL,
+    `account_descr`     TEXT,
+    `account_email`     TEXT,
     `project_id__last`  INT,
     `location_id__last` INT,
     `is_hidden`         BOOLEAN             NOT NULL DEFAULT FALSE,
@@ -66,7 +61,7 @@ CREATE TABLE `profile` (
     `profile_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `profile_name`  VARCHAR(256)        NOT NULL,
     `profile_descr` TEXT,
-    `user_id`       INTEGER             NOT NULL,
+    `account_id`    INTEGER             NOT NULL,
     `is_hidden`     BOOLEAN             NOT NULL DEFAULT FALSE,
     `is_deleted`    BOOLEAN             NOT NULL DEFAULT FALSE,
     `hidden_at`     DATETIME,
@@ -95,7 +90,6 @@ CREATE TABLE `activity` (
     `activity_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `activity_name`  VARCHAR(256)        NOT NULL,
     `activity_descr` TEXT,
-    `profile_id`     INTEGER             NOT NULL,
     `folder_id`      INTEGER             NOT NULL,
     `sort_order`     INTEGER             NOT NULL DEFAULT 0,
     `is_hidden`      BOOLEAN             NOT NULL DEFAULT FALSE,
@@ -110,7 +104,6 @@ CREATE TABLE `location` (
     `location_id`      INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `location_name`    VARCHAR(256)        NOT NULL,
     `location_descr`   TEXT,
-    `user_id`          INTEGER             NOT NULL,
     `folder_id`        INTEGER             NOT NULL,
     `sort_order`       INTEGER             NOT NULL DEFAULT 0,
     `is_hidden`        BOOLEAN             NOT NULL DEFAULT FALSE,
@@ -126,7 +119,6 @@ CREATE TABLE `project` (
     `project_id`        INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `project_name`      VARCHAR(256)        NOT NULL,
     `project_descr`     TEXT,
-    `profile_id`        INTEGER             NOT NULL,
     `folder_id`         INTEGER             NOT NULL,
     `sort_order`        INTEGER             NOT NULL DEFAULT 0,
     `is_hidden`         BOOLEAN             NOT NULL DEFAULT FALSE,
@@ -145,7 +137,6 @@ CREATE TABLE `tag` (
     `tag_id`      INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `tag_name`    VARCHAR(256)        NOT NULL,
     `tag_descr`   TEXT,
-    `profile_id`  INTEGER             NOT NULL,
     `folder_id`   INTEGER             NOT NULL,
     `sort_order`  INTEGER             NOT NULL DEFAULT 0,
     `is_hidden`   BOOLEAN             NOT NULL DEFAULT FALSE,
@@ -158,10 +149,9 @@ CREATE TABLE `tag` (
 
 CREATE TABLE `journal` (
     `journal_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `profile_id`    INTEGER             NOT NULL,
     `start_time`    DATETIME            NOT NULL,
     `stop_time`     DATETIME            NOT NULL,
-    `seconds`       INTEGER             NOT NULL,
+    `duration`      INTEGER             NOT NULL,
     `memo`          TEXT,
     `project_id`    INTEGER             NOT NULL,
     `activity_id`   INTEGER             NOT NULL,
@@ -183,7 +173,7 @@ CREATE TABLE `project_group` (
     `project_group_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `project_group_name`  TEXT                NOT NULL,
     `project_group_descr` TEXT,
-    `user_id`             INTEGER             NOT NULL,
+    `account_id`          INTEGER             NOT NULL,
     `project_id`          INTEGER             NOT NULL,
     `created_at`          DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
     `modified_at`         DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
@@ -191,43 +181,31 @@ CREATE TABLE `project_group` (
 
 CREATE UNIQUE INDEX `idx_schema_version` ON `_schema` (`schema_version`);
 
-CREATE UNIQUE INDEX `idx_user_name` ON `users` (`user_name`);
+CREATE UNIQUE INDEX `idx_account_username` ON `account` (`account_username`);
 
-CREATE UNIQUE INDEX `idx_user_email` ON `users` (`user_email`);
+CREATE UNIQUE INDEX `idx_account_email` ON `account` (`account_email`);
 
-CREATE UNIQUE INDEX `idx_profile_name` ON `profile` (`user_id`, `profile_name`);
+CREATE UNIQUE INDEX `idx_profile_name` ON `profile` (`account_id`, `profile_name`);
 
 CREATE INDEX `idx_folder_profile_id` ON `folder` (`profile_id`);
 
 CREATE INDEX `idx_folder_parent_id` ON `folder` (`folder_id__parent`);
 
-CREATE UNIQUE INDEX `idx_folder_name` ON `folder` (`folder_id__parent`, `folder_name`);
-
-CREATE INDEX `idx_activity_profile_id` ON `activity` (`profile_id`);
-
 CREATE INDEX `idx_activity_folder_id` ON `activity` (`folder_id`);
 
 CREATE UNIQUE INDEX `idx_activity_name` ON `activity` (`folder_id`, `activity_name`);
-
-CREATE INDEX `idx_location_user_id` ON `location` (`user_id`);
 
 CREATE INDEX `idx_location_folder_id` ON `location` (`folder_id`);
 
 CREATE UNIQUE INDEX `idx_location_name` ON `location` (`folder_id`, `location_name`);
 
-CREATE INDEX `idx_project_profile_id` ON `project` (`profile_id`);
-
 CREATE INDEX `idx_project_folder_id` ON `project` (`folder_id`);
 
 CREATE UNIQUE INDEX `idx_project_name` ON `project` (`folder_id`, `project_name`);
 
-CREATE INDEX `idx_tag_profile_id` ON `tag` (`profile_id`);
-
 CREATE INDEX `idx_tag_folder_id` ON `tag` (`folder_id`);
 
 CREATE UNIQUE INDEX `idx_tag_name` ON `tag` (`folder_id`, `tag_name`);
-
-CREATE INDEX `idx_journal_profile_id` ON `journal` (`profile_id`);
 
 CREATE INDEX `idx_journal_project_id` ON `journal` (`project_id`);
 
@@ -236,7 +214,7 @@ CREATE INDEX `idx_journal_activity_id` ON `journal` (`activity_id`);
 CREATE INDEX `idx_journal_location_id` ON `journal` (`location_id`);
 
 ALTER TABLE `profile`
-    ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+    ADD FOREIGN KEY (`account_id`) REFERENCES `account` (`account_id`);
 
 ALTER TABLE `folder`
     ADD FOREIGN KEY (`profile_id`) REFERENCES `profile` (`profile_id`);
@@ -245,13 +223,7 @@ ALTER TABLE `folder`
     ADD FOREIGN KEY (`folder_id__parent`) REFERENCES `folder` (`folder_id`);
 
 ALTER TABLE `activity`
-    ADD FOREIGN KEY (`profile_id`) REFERENCES `profile` (`profile_id`);
-
-ALTER TABLE `activity`
     ADD FOREIGN KEY (`folder_id`) REFERENCES `folder` (`folder_id`);
-
-ALTER TABLE `location`
-    ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 ALTER TABLE `location`
     ADD FOREIGN KEY (`folder_id`) REFERENCES `folder` (`folder_id`);
@@ -260,28 +232,19 @@ ALTER TABLE `location`
     ADD FOREIGN KEY (`ref_time_zone_id`) REFERENCES `ref_time_zone` (`ref_time_zone_id`);
 
 ALTER TABLE `project`
-    ADD FOREIGN KEY (`profile_id`) REFERENCES `profile` (`profile_id`);
-
-ALTER TABLE `project`
     ADD FOREIGN KEY (`folder_id`) REFERENCES `folder` (`folder_id`);
 
-ALTER TABLE `users`
+ALTER TABLE `account`
     ADD FOREIGN KEY (`project_id__last`) REFERENCES `project` (`project_id`);
 
 ALTER TABLE `project`
     ADD FOREIGN KEY (`activity_id__last`) REFERENCES `activity` (`activity_id`);
 
-ALTER TABLE `users`
+ALTER TABLE `account`
     ADD FOREIGN KEY (`location_id__last`) REFERENCES `location` (`location_id`);
 
 ALTER TABLE `tag`
-    ADD FOREIGN KEY (`profile_id`) REFERENCES `profile` (`profile_id`);
-
-ALTER TABLE `tag`
     ADD FOREIGN KEY (`folder_id`) REFERENCES `folder` (`folder_id`);
-
-ALTER TABLE `journal`
-    ADD FOREIGN KEY (`profile_id`) REFERENCES `profile` (`profile_id`);
 
 ALTER TABLE `journal`
     ADD FOREIGN KEY (`project_id`) REFERENCES `project` (`project_id`);
@@ -299,7 +262,7 @@ ALTER TABLE `journal_tag`
     ADD FOREIGN KEY (`tag_id`) REFERENCES `tag` (`tag_id`);
 
 ALTER TABLE `project_group`
-    ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+    ADD FOREIGN KEY (`account_id`) REFERENCES `account` (`account_id`);
 
 ALTER TABLE `project_group`
     ADD FOREIGN KEY (`project_id`) REFERENCES `project` (`project_id`);

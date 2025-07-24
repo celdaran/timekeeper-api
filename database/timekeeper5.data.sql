@@ -1,3 +1,11 @@
+INSERT INTO _schema (schema_id, schema_version, applied_by, status_id, applied_at)
+VALUES
+    (1, '5.0.0', 'hillsc', 1, '2025-06-09T05:49:00-05:00'),
+    (2, '5.0.1', 'hillsc', 1, '2025-06-09T22:52:00-05:00'),
+    (3, '5.1.0', 'hillsc', 1, '2025-07-24T01:34:00-05:00'),
+    (4, '5.2.0', 'hillsc', 1, '2025-07-24T12:45:00-05:00')
+;
+
 INSERT INTO ref_date_preset (ref_date_preset_name)
 VALUES
     ('Today'       ),

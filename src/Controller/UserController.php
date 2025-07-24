@@ -18,10 +18,13 @@ final class UserController extends AbstractController
     #[Route('/api/v1/user', name: 'user_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $user = $this->userService->create($data['username'], $data['password'], $data['email']);
-
-        return $this->json(['user' => $user]);
+        try {
+            $data = json_decode($request->getContent(), true);
+            $user = $this->userService->create($data['username'], $data['password'], $data['email']);
+            return $this->json(ApiResponse::success(['user' => $user]));
+        } catch (\Exception $e) {
+            return $this->json(ApiResponse::error(['error' => $e->getMessage()]), 400);
+        }
     }
 
 }

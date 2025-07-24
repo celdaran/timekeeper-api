@@ -21,6 +21,20 @@ class DatabaseService
 
     public function insert(string $table, array $row): int
     {
-        return 0;
+        $columns = array_keys($row);
+        $columnPlaceholders = [];
+        foreach ($columns as $column) {
+            $columnPlaceholders[] = ':' . $column;
+        }
+
+        $sql = "INSERT INTO $table";
+        $sql .= "(" . implode(", ", $columns) . ")";
+        $sql .= " VALUES ";
+        $sql .= "(" . implode(", ", $columnPlaceholders) . ")";
+
+        $sth = $this->pdo->prepare($sql);
+        $sth->execute($row);
+
+        return $this->pdo->lastInsertId();
     }
 }

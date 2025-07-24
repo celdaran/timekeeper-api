@@ -6,9 +6,25 @@ class AccountService
 {
     private DatabaseService $db;
 
+    private array $columnMap;
+
     public function __construct(DatabaseService $databaseService)
     {
         $this->db = $databaseService;
+        $this->columnMap = [
+            'id' => 'account_id',
+            'username' => 'account_username',
+            'password' => 'account_password',
+            'email' => 'account_email',
+            'description' => 'account_descr',
+            'hidden' => 'is_hidden',
+            'deleted' => 'is_deleted',
+        ];
+    }
+
+    public function fetch(int $accountId): array
+    {
+        return $this->db->selectRow('account', 'account_id', $accountId);
     }
 
     public function create(string $username, string $password, string $email): array
@@ -79,6 +95,26 @@ class AccountService
             'profile_id' => $profileId,
             'folder_id' => $folderId,
         ];
+    }
+
+    public function update(int $accountId, array $data): bool
+    {
+        $payload = [];
+        foreach ($data as $key => $value) {
+            $payload[$this->columnMap[$key]] = $value;
+        }
+        $payload['modified_at'] = date('Y-m-d H:i:s');
+        return $this->db->update('account', $payload, 'account_id', $accountId);
+    }
+
+    public function delete(int $accountId): bool
+    {
+        $payload = [
+            'is_deleted' => 1,
+            'deleted_at' => date('Y-m-d H:i:s'),
+            'modified_at' => date('Y-m-d H:i:s'),
+        ];
+        return $this->db->update('account', $payload, 'account_id', $accountId);
     }
 
 }

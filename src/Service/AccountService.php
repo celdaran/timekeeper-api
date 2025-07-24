@@ -2,7 +2,7 @@
 
 use App\Service\DatabaseService;
 
-class UserService
+class AccountService
 {
     private DatabaseService $db;
 
@@ -11,24 +11,23 @@ class UserService
         $this->db = $databaseService;
     }
 
-    public function create(string $name, string $password, string $email): array
+    public function create(string $username, string $password, string $email): array
     {
-        // Create row in users table
+        // Create row in account table
         $payload = [
-            'user_name' => $name,
-            'user_password' => $password,
-            'user_descr' => $name,
-            'user_email' => $email,
+            'account_username' => $username,
+            'account_password' => $password,
+            'account_email' => $email,
             'is_hidden' => 0,
             'is_deleted' => 0,
         ];
-        $userId = $this->db->insert('users', $payload);
+        $accountId = $this->db->insert('account', $payload);
 
         // Create default profile
         $payload = [
             'profile_name' => 'Default',
             'profile_descr' => 'This is the default profile',
-            'user_id' => $userId,
+            'account_id' => $accountId,
             'is_hidden' => 0,
             'is_deleted' => 0,
         ];
@@ -47,7 +46,6 @@ class UserService
         $payload = [
             'project_name' => 'Default Project',
             'project_descr' => 'This is the default project. Feel free to use as-is or edit as needed.',
-            'profile_id' => $profileId,
             'folder_id' => $folderId,
             'sort_order' => 1,
             'is_hidden' => 0,
@@ -58,7 +56,6 @@ class UserService
         $payload = [
             'activity_name' => 'Default Activity',
             'activity_descr' => 'This is the default activity. Feel free to use as-is or edit as needed.',
-            'profile_id' => $profileId,
             'folder_id' => $folderId,
             'sort_order' => 1,
             'is_hidden' => 0,
@@ -69,7 +66,6 @@ class UserService
         $payload = [
             'location_name' => 'Default Location',
             'location_descr' => 'This is the default location. Feel free to use as-is or edit as needed.',
-            'user_id' => $userId,
             'folder_id' => $folderId,
             'sort_order' => 1,
             'is_hidden' => 0,
@@ -79,7 +75,7 @@ class UserService
         $this->db->insert('location', $payload);
 
         return [
-            'user_id' => $userId,
+            'account_id' => $accountId,
             'profile_id' => $profileId,
             'folder_id' => $folderId,
         ];

@@ -1,0 +1,8 @@
+PUT http://localhost:8000/api/v1/account/1?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "username": "jsmith-updated",
+  "email": "jsmith-updated@example.com"
+}

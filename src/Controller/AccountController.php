@@ -18,86 +18,62 @@ final class AccountController extends AbstractController
     #[Route('/api/v1/account/{accountId}', name: 'account_fetch', methods: ['GET'])]
     public function fetch(Request $request, int $accountId): JsonResponse
     {
-        try {
-            $account = $this->accountService->fetch($accountId);
-            return $this->json(ApiResponse::success(['account' => $account]));
-        } catch (\Exception $e) {
-            return $this->json(ApiResponse::error(['error' => $e->getMessage()]), 400);
-        }
+        $account = $this->accountService->fetch($accountId);
+        return $this->json(ApiResponse::success(['account' => $account]));
     }
 
     #[Route('/api/v1/account', name: 'account_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
-        try {
-            $data = json_decode($request->getContent(), true);
-            $account = $this->accountService->create($data['username'], $data['password'], $data['email']);
-            return $this->json(ApiResponse::success(['account' => $account]));
-        } catch (\Exception $e) {
-            return $this->json(ApiResponse::error(['error' => $e->getMessage()]), 400);
-        }
+        $data = json_decode($request->getContent(), true);
+        $account = $this->accountService->create($data['username'], $data['password'], $data['email']);
+        return $this->json(ApiResponse::success(['account' => $account]));
     }
 
     #[Route('/api/v1/account/{accountId}', name: 'account_update', methods: ['PUT'])]
     public function update(Request $request, int $accountId): JsonResponse
     {
-        try {
-            $data = json_decode($request->getContent(), true);
-            $success = $this->accountService->update($accountId, $data);
-            return $this->json(ApiResponse::success());
-        } catch (\Exception $e) {
-            return $this->json(ApiResponse::error(['error' => $e->getMessage()]), 400);
-        }
+        $data = json_decode($request->getContent(), true);
+        $this->accountService->update($accountId, $data);
+        return $this->json(ApiResponse::success());
     }
 
     #[Route('/api/v1/account/{accountId}', name: 'account_delete', methods: ['DELETE'])]
     public function delete(Request $request, int $accountId): JsonResponse
     {
-        try {
-            if ($request->query->has('option')) {
-                if ($request->query->get('option') === 'hide') {
-                    $this->accountService->hide($accountId);
-                    return $this->json(ApiResponse::success());
-                }
+        if ($request->query->has('option')) {
+            if ($request->query->get('option') === 'hide') {
+                $this->accountService->hide($accountId);
+                return $this->json(ApiResponse::success());
             }
-            $this->accountService->delete($accountId);
-            return $this->json(ApiResponse::success());
-        } catch (\Exception $e) {
-            return $this->json(ApiResponse::error(['error' => $e->getMessage()]), 400);
         }
+        $this->accountService->delete($accountId);
+        return $this->json(ApiResponse::success());
     }
 
     #[Route('/api/v1/account/{accountId}/password', name: 'account_update_password', methods: ['PUT'])]
     public function changePassword(Request $request, int $accountId): JsonResponse
     {
-        try {
-            $data = json_decode($request->getContent(), true);
-            $keys = array_keys($data);
-            if (count($keys) === 1 && $keys[0] === 'password') {
-                $this->accountService->update($accountId, $data);
-                return $this->json(ApiResponse::success());
-            } else {
-                throw new \Exception('Request body must only contain a password.');
-            }
-        } catch (\Exception $e) {
-            return $this->json(ApiResponse::error(['error' => $e->getMessage()]), 400);
+        $data = json_decode($request->getContent(), true);
+        $keys = array_keys($data);
+        if (count($keys) === 1 && $keys[0] === 'password') {
+            $this->accountService->update($accountId, $data);
+            return $this->json(ApiResponse::success());
+        } else {
+            throw new \Exception('Request body must only contain a password.');
         }
     }
 
     #[Route('/api/v1/account/{accountId}/email', name: 'account_update_email', methods: ['PUT'])]
     public function changeEmail(Request $request, int $accountId): JsonResponse
     {
-        try {
-            $data = json_decode($request->getContent(), true);
-            $keys = array_keys($data);
-            if (count($keys) === 1 && $keys[0] === 'email') {
-                $this->accountService->update($accountId, $data);
-                return $this->json(ApiResponse::success());
-            } else {
-                throw new \Exception('Request body must only contain an email.');
-            }
-        } catch (\Exception $e) {
-            return $this->json(ApiResponse::error(['error' => $e->getMessage()]), 400);
+        $data = json_decode($request->getContent(), true);
+        $keys = array_keys($data);
+        if (count($keys) === 1 && $keys[0] === 'email') {
+            $this->accountService->update($accountId, $data);
+            return $this->json(ApiResponse::success());
+        } else {
+            throw new \Exception('Request body must only contain an email.');
         }
     }
 

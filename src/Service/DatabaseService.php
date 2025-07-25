@@ -2,6 +2,7 @@
 
 use PDO;
 use InvalidArgumentException;
+use App\Exception\NotFoundException;
 
 class DatabaseService
 {
@@ -25,7 +26,12 @@ class DatabaseService
         $sql = "SELECT $columns FROM $table WHERE $pk = $id";
         $sth = $this->pdo->prepare($sql);
         $sth->execute();
-        return $sth->fetch(PDO::FETCH_ASSOC);
+        $row = $sth->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            throw new NotFoundException("no row found in table $table where $pk = $id");
+        } else {
+            return $row;
+        }
     }
 
     public function insert(string $table, array $row): int

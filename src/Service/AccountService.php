@@ -1,30 +1,24 @@
 <?php namespace App\Service;
 
-use App\Service\DatabaseService;
-
-class AccountService
+class AccountService extends BaseService
 {
-    private DatabaseService $db;
+    private ProfileService $profileService;
 
-    private array $columnMap;
-
-    public function __construct(DatabaseService $databaseService)
+    public function __construct(DatabaseService $databaseService, ProfileService $profileService)
     {
-        $this->db = $databaseService;
+        parent::__construct($databaseService);
+        $this->profileService = $profileService;
         $this->columnMap = [
             'id' => 'account_id',
             'username' => 'account_username',
             'password' => 'account_password',
             'email' => 'account_email',
             'description' => 'account_descr',
+            'last_project' => 'project_id__last',
+            'last_location' => 'location_id__last',
             'hidden' => 'is_hidden',
             'deleted' => 'is_deleted',
         ];
-    }
-
-    public function fetch(int $accountId): array
-    {
-        return $this->db->selectRow('account', 'account_id', $accountId);
     }
 
     public function create(string $username, string $password, string $email): array
@@ -43,14 +37,7 @@ class AccountService
         $accountId = $this->db->insert('account', $payload);
 
         // Create default profile
-        $payload = [
-            'profile_name' => 'Default',
-            'profile_descr' => 'This is the default profile',
-            'account_id' => $accountId,
-            'is_hidden' => 0,
-            'is_deleted' => 0,
-        ];
-        $profileId = $this->db->insert('profile', $payload);
+        $profileId = $this->profileService->create('Default', 'This is the default profile', $accountId);
 
         // Create profile-specific, invisible root folder
         $payload = [
@@ -100,38 +87,34 @@ class AccountService
         ];
     }
 
-    public function update(int $accountId, array $data): bool
+    public function fetch(int $id): array
     {
-        $payload = [];
-        foreach ($data as $key => $value) {
-            if ($key === 'password') {
-                $payload[$this->columnMap[$key]] = password_hash($value, PASSWORD_ARGON2ID);
-            } else {
-                $payload[$this->columnMap[$key]] = $value;
-            }
-        }
-        $payload['modified_at'] = date('Y-m-d H:i:s');
-        return $this->db->update('account', $payload, 'account_id', $accountId);
+        return $this->_fetch('account', 'account_id', $id);
     }
 
-    public function delete(int $accountId): bool
+    public function update(int $id, array $data): bool
     {
-        $payload = [
-            'is_deleted' => 1,
-            'deleted_at' => date('Y-m-d H:i:s'),
-            'modified_at' => date('Y-m-d H:i:s'),
-        ];
-        return $this->db->update('account', $payload, 'account_id', $accountId);
+        return $this->_update('account', 'account_id', $id, $data);
     }
 
-    public function hide(int $accountId): bool
+    public function delete(int $id): bool
     {
-        $payload = [
-            'is_hidden' => 1,
-            'hidden_at' => date('Y-m-d H:i:s'),
-            'modified_at' => date('Y-m-d H:i:s'),
-        ];
-        return $this->db->update('account', $payload, 'account_id', $accountId);
+        return $this->_delete('account', 'account_id', $id);
+    }
+
+    public function hide(int $id): bool
+    {
+        return $this->_hide('account', 'account_id', $id);
+    }
+
+    public function undelete(int $id): bool
+    {
+        return $this->_undelete('account', 'account_id', $id);
+    }
+
+    public function unhide(int $id): bool
+    {
+        return $this->_unhide('account', 'account_id', $id);
     }
 
 }

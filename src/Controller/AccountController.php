@@ -1,13 +1,12 @@
 <?php namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 
 use App\Service\AccountService;
 
-final class AccountController extends AbstractController
+final class AccountController extends BaseController
 {
     private AccountService $accountService;
 
@@ -15,18 +14,18 @@ final class AccountController extends AbstractController
         $this->accountService = $accountService;
     }
 
-    #[Route('/api/v1/account/{accountId}', name: 'account_fetch', methods: ['GET'])]
-    public function fetch(Request $request, int $accountId): JsonResponse
-    {
-        $account = $this->accountService->fetch($accountId);
-        return $this->json(ApiResponse::success(['account' => $account]));
-    }
-
     #[Route('/api/v1/account', name: 'account_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $account = $this->accountService->create($data['username'], $data['password'], $data['email']);
+        return $this->json(ApiResponse::success(['account' => $account]));
+    }
+
+    #[Route('/api/v1/account/{accountId}', name: 'account_fetch', methods: ['GET'])]
+    public function fetch(Request $request, int $accountId): JsonResponse
+    {
+        $account = $this->accountService->fetch($accountId);
         return $this->json(ApiResponse::success(['account' => $account]));
     }
 
@@ -41,8 +40,8 @@ final class AccountController extends AbstractController
     #[Route('/api/v1/account/{accountId}', name: 'account_delete', methods: ['DELETE'])]
     public function delete(Request $request, int $accountId): JsonResponse
     {
-        if ($request->query->has('option')) {
-            if ($request->query->get('option') === 'hide') {
+        if ($request->query->has('hide')) {
+            if ($request->query->get('hide') === 'true') {
                 $this->accountService->hide($accountId);
                 return $this->json(ApiResponse::success());
             }
@@ -51,30 +50,41 @@ final class AccountController extends AbstractController
         return $this->json(ApiResponse::success());
     }
 
-    #[Route('/api/v1/account/{accountId}/password', name: 'account_update_password', methods: ['PUT'])]
-    public function changePassword(Request $request, int $accountId): JsonResponse
+    #[Route('/api/v1/account/{accountId}', name: 'account_delete', methods: ['PATCH'])]
+    public function undelete(Request $request, int $accountId): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $keys = array_keys($data);
-        if (count($keys) === 1 && $keys[0] === 'password') {
-            $this->accountService->update($accountId, $data);
-            return $this->json(ApiResponse::success());
-        } else {
-            throw new \Exception('Request body must only contain a password.');
+        if ($request->query->has('hide')) {
+            if ($request->query->get('hide') === 'true') {
+                $this->accountService->unhide($accountId);
+                return $this->json(ApiResponse::success());
+            }
         }
+        $this->accountService->undelete($accountId);
+        return $this->json(ApiResponse::success());
     }
 
-    #[Route('/api/v1/account/{accountId}/email', name: 'account_update_email', methods: ['PUT'])]
+    #[Route('/api/v1/account/{accountId}/password', name: 'account_update_password', methods: ['PATCH'])]
+    public function changePassword(Request $request, int $accountId): JsonResponse
+    {
+        return $this->_patch($request, 'password', $accountId, $this->accountService);
+    }
+
+    #[Route('/api/v1/account/{accountId}/email', name: 'account_update_email', methods: ['PATCH'])]
     public function changeEmail(Request $request, int $accountId): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $keys = array_keys($data);
-        if (count($keys) === 1 && $keys[0] === 'email') {
-            $this->accountService->update($accountId, $data);
-            return $this->json(ApiResponse::success());
-        } else {
-            throw new \Exception('Request body must only contain an email.');
-        }
+        return $this->_patch($request, 'email', $accountId, $this->accountService);
+    }
+
+    #[Route('/api/v1/account/{accountId}/last_project', name: 'account_update_last_project', methods: ['PATCH'])]
+    public function changeLastProject(Request $request, int $accountId): JsonResponse
+    {
+        return $this->_patch($request, 'last_project', $accountId, $this->accountService);
+    }
+
+    #[Route('/api/v1/account/{accountId}/last_location', name: 'account_update_last_location', methods: ['PATCH'])]
+    public function changeLastLocation(Request $request, int $accountId): JsonResponse
+    {
+        return $this->_patch($request, 'last_location', $accountId, $this->accountService);
     }
 
 }

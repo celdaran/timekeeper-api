@@ -124,4 +124,14 @@ class AccountService
         return $this->db->update('account', $payload, 'account_id', $accountId);
     }
 
+    public function hide(int $accountId): bool
+    {
+        $payload = [
+            'is_hidden' => 1,
+            'hidden_at' => date('Y-m-d H:i:s'),
+            'modified_at' => date('Y-m-d H:i:s'),
+        ];
+        return $this->db->update('account', $payload, 'account_id', $accountId);
+    }
+
 }

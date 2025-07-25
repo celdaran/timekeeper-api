@@ -1,0 +1,7 @@
+PUT {{baseUrl}}/api/v1/account/1/email?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "email": "new-email@example.com"
+}

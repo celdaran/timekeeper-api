@@ -54,6 +54,12 @@ final class AccountController extends AbstractController
     public function delete(Request $request, int $accountId): JsonResponse
     {
         try {
+            if ($request->query->has('option')) {
+                if ($request->query->get('option') === 'hide') {
+                    $this->accountService->hide($accountId);
+                    return $this->json(ApiResponse::success());
+                }
+            }
             $this->accountService->delete($accountId);
             return $this->json(ApiResponse::success());
         } catch (\Exception $e) {
@@ -72,6 +78,23 @@ final class AccountController extends AbstractController
                 return $this->json(ApiResponse::success());
             } else {
                 throw new \Exception('Request body must only contain a password.');
+            }
+        } catch (\Exception $e) {
+            return $this->json(ApiResponse::error(['error' => $e->getMessage()]), 400);
+        }
+    }
+
+    #[Route('/api/v1/account/{accountId}/email', name: 'account_update_email', methods: ['PUT'])]
+    public function changeEmail(Request $request, int $accountId): JsonResponse
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
+            $keys = array_keys($data);
+            if (count($keys) === 1 && $keys[0] === 'email') {
+                $this->accountService->update($accountId, $data);
+                return $this->json(ApiResponse::success());
+            } else {
+                throw new \Exception('Request body must only contain an email.');
             }
         } catch (\Exception $e) {
             return $this->json(ApiResponse::error(['error' => $e->getMessage()]), 400);

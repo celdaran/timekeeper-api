@@ -50,7 +50,7 @@ final class AccountController extends BaseController
         return $this->json(ApiResponse::success());
     }
 
-    #[Route('/api/v1/account/{accountId}', name: 'account_delete', methods: ['PATCH'])]
+    #[Route('/api/v1/account/{accountId}', name: 'account_undelete', methods: ['PATCH'])]
     public function undelete(Request $request, int $accountId): JsonResponse
     {
         if ($request->query->has('hide')) {

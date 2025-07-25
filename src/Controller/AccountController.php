@@ -60,4 +60,22 @@ final class AccountController extends AbstractController
             return $this->json(ApiResponse::error(['error' => $e->getMessage()]), 400);
         }
     }
+
+    #[Route('/api/v1/account/{accountId}/password', name: 'account_update_password', methods: ['PUT'])]
+    public function changePassword(Request $request, int $accountId): JsonResponse
+    {
+        try {
+            $data = json_decode($request->getContent(), true);
+            $keys = array_keys($data);
+            if (count($keys) === 1 && $keys[0] === 'password') {
+                $this->accountService->update($accountId, $data);
+                return $this->json(ApiResponse::success());
+            } else {
+                throw new \Exception('Request body must only contain a password.');
+            }
+        } catch (\Exception $e) {
+            return $this->json(ApiResponse::error(['error' => $e->getMessage()]), 400);
+        }
+    }
+
 }

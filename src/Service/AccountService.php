@@ -29,10 +29,13 @@ class AccountService
 
     public function create(string $username, string $password, string $email): array
     {
+        // Hash the password
+        $hashedPassword = password_hash($password, PASSWORD_ARGON2ID);
+
         // Create row in account table
         $payload = [
             'account_username' => $username,
-            'account_password' => $password,
+            'account_password' => $hashedPassword,
             'account_email' => $email,
             'is_hidden' => 0,
             'is_deleted' => 0,
@@ -101,7 +104,11 @@ class AccountService
     {
         $payload = [];
         foreach ($data as $key => $value) {
-            $payload[$this->columnMap[$key]] = $value;
+            if ($key === 'password') {
+                $payload[$this->columnMap[$key]] = password_hash($value, PASSWORD_ARGON2ID);
+            } else {
+                $payload[$this->columnMap[$key]] = $value;
+            }
         }
         $payload['modified_at'] = date('Y-m-d H:i:s');
         return $this->db->update('account', $payload, 'account_id', $accountId);

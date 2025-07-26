@@ -48,12 +48,12 @@ class ProfileService extends BaseService
 
     public function undelete(int $id): bool
     {
-        return $this->_undelete('account', 'account_id', $id);
+        return $this->_undelete('profile', 'profile_id', $id);
     }
 
     public function unhide(int $id): bool
     {
-        return $this->_unhide('account', 'account_id', $id);
+        return $this->_unhide('profile', 'profile_id', $id);
     }
 
 }

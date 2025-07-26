@@ -37,11 +37,11 @@ final class ProfileController extends BaseController
         return $this->json(ApiResponse::success());
     }
 
-    #[Route('/api/v1/profile/{profileId}', name: 'profile_delete', methods: ['DELETE'])]
+    #[Route('/api/v1/profile/{profileId}', name: 'profile_delete', methods: ['PATCH'])]
     public function delete(Request $request, int $profileId): JsonResponse
     {
-        if ($request->query->has('option')) {
-            if ($request->query->get('option') === 'hide') {
+        if ($request->query->has('hide')) {
+            if ($request->query->get('hide') === 'true') {
                 $this->profileService->hide($profileId);
                 return $this->json(ApiResponse::success());
             }

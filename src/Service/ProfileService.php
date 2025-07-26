@@ -36,11 +36,6 @@ class ProfileService extends BaseService
         return $this->_update('profile', 'profile_id', $id, $data);
     }
 
-    public function rename(int $id, array $data): bool
-    {
-        return $this->_update('profile', 'profile_id', $id, $data);
-    }
-
     public function delete(int $id): bool
     {
         return $this->_delete('profile', 'profile_id', $id);

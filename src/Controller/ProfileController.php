@@ -53,13 +53,13 @@ final class ProfileController extends BaseController
     #[Route('/api/v1/profile/{profileId}/name', name: 'profile_update_name', methods: ['PATCH'])]
     public function changeName(Request $request, int $profileId): JsonResponse
     {
-        return $this->_patch($request, 'password', $profileId, $this->profileService);
+        return $this->_patch($request, 'profile', $profileId, $this->profileService);
     }
 
     #[Route('/api/v1/profile/{profileId}/description', name: 'profile_update_description', methods: ['PATCH'])]
     public function changeDescription(Request $request, int $profileId): JsonResponse
     {
-        return $this->_patch($request, 'password', $profileId, $this->profileService);
+        return $this->_patch($request, 'description', $profileId, $this->profileService);
     }
 
 }

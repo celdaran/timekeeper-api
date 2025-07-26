@@ -13,10 +13,13 @@ class BaseController extends AbstractController
     {
         $data = $this->_canPatch($request, $patchColumn);
         if (empty($data)) {
-            return $this->json(ApiResponse::error(['Malformed Request']));
+            return $this->json(ApiResponse::error(['malformed request: request payload should be in the form {"value":"<your-value-here>"}']), 422);
         } else {
-            $service->update($id, $data);
-            return $this->json(ApiResponse::success());
+            if ($service->update($id, $data)) {
+                return $this->json(ApiResponse::success());
+            } else {
+                return $this->json(ApiResponse::error(['message' => 'no rows patched']), 404);
+            }
         }
     }
 

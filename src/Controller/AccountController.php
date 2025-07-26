@@ -33,8 +33,11 @@ final class AccountController extends BaseController
     public function update(Request $request, int $accountId): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        $this->accountService->update($accountId, $data);
-        return $this->json(ApiResponse::success());
+         if ($this->accountService->update($accountId, $data)) {
+             return $this->json(ApiResponse::success());
+         } else {
+             return $this->json(ApiResponse::error(['message' => 'no rows updated']), 404);
+         }
     }
 
     #[Route('/api/v1/account/{accountId}', name: 'account_delete', methods: ['DELETE'])]

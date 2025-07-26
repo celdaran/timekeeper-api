@@ -58,7 +58,8 @@ class DatabaseService
         $update = $this->buildUpdateStatement($table, $row, $pk, $id);
         $sth = $this->pdo->prepare($update['sql']);
         $sth->execute($update['params']);
-        return true;
+        $count = $sth->rowCount();
+        return ($count > 0);
     }
 
     private function buildUpdateStatement(string $tableName, array $data, string $pk, mixed $id): array

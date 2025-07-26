@@ -1,10 +1,10 @@
 
 Table "_schema" {
   "schema_id" INTEGER [pk, not null, increment]
-  "schema_version" VARCHAR(32) [not null, unique]
-  "schema_descr" TEXT [not null]
+  "schema_version" VARCHAR(31) [not null, unique]
+  "schema_descr" VARCHAR(255) [not null]
   "applied_at" DATETIME [not null, default: `current_timestamp`]
-  "applied_by" VARCHAR(256) [not null]
+  "applied_by" VARCHAR(255) [not null]
   "status_id" INT [not null]
   "created_at" DATETIME [not null, default: `current_timestamp`]
   "modified_at" DATETIME [not null, default: `current_timestamp`]
@@ -16,7 +16,7 @@ Table "_schema" {
 
 Table "ref_date_preset" {
   "ref_date_preset_id" INTEGER [pk, not null, increment]
-  "ref_date_preset_name" TEXT [not null]
+  "ref_date_preset_name" VARCHAR(255) [not null]
   "ref_date_preset_descr" TEXT
   "created_at" DATETIME [not null, default: `current_timestamp`]
   "modified_at" DATETIME [not null, default: `current_timestamp`]
@@ -24,7 +24,7 @@ Table "ref_date_preset" {
 
 Table "ref_group_by" {
   "ref_group_by_id" INTEGER [pk, not null, increment]
-  "ref_group_by_name" TEXT [not null]
+  "ref_group_by_name" VARCHAR(255) [not null]
   "ref_group_by_descr" TEXT
   "created_at" DATETIME [not null, default: `current_timestamp`]
   "modified_at" DATETIME [not null, default: `current_timestamp`]
@@ -32,7 +32,7 @@ Table "ref_group_by" {
 
 Table "ref_time_display" {
   "ref_time_display_id" INTEGER [pk, not null, increment]
-  "ref_time_display_name" TEXT [not null]
+  "ref_time_display_name" VARCHAR(255) [not null]
   "ref_time_display_descr" TEXT
   "created_at" DATETIME [not null, default: `current_timestamp`]
   "modified_at" DATETIME [not null, default: `current_timestamp`]
@@ -40,7 +40,7 @@ Table "ref_time_display" {
 
 Table "ref_time_zone" {
   "ref_time_zone_id" INTEGER [pk, not null, increment]
-  "ref_time_zone_name" TEXT [not null]
+  "ref_time_zone_name" VARCHAR(255) [not null]
   "ref_time_zone_descr" TEXT
   "created_at" DATETIME [not null, default: `current_timestamp`]
   "modified_at" DATETIME [not null, default: `current_timestamp`]
@@ -48,10 +48,10 @@ Table "ref_time_zone" {
 
 Table "account" {
   "account_id" INTEGER [pk, not null, increment]
-  "account_username" TEXT [not null]
-  "account_password" TEXT [not null]
+  "account_username" VARCHAR(255) [not null]
+  "account_password" VARCHAR(255) [not null]
+  "account_email" VARCHAR(320) [not null]
   "account_descr" TEXT
-  "account_email" TEXT
   "project_id__last" INT
   "location_id__last" INT
   "is_hidden" BOOLEAN [not null, default: false]
@@ -69,7 +69,7 @@ Table "account" {
 
 Table "profile" {
   "profile_id" INTEGER [pk, not null, increment]
-  "profile_name" VARCHAR(256) [not null]
+  "profile_name" VARCHAR(255) [not null]
   "profile_descr" TEXT
   "account_id" INTEGER [not null]
   "is_hidden" BOOLEAN [not null, default: false]
@@ -86,7 +86,7 @@ Table "profile" {
 
 Table "folder" {
   "folder_id" INTEGER [pk, not null, increment]
-  "folder_name" TEXT [not null]
+  "folder_name" VARCHAR(255) [not null]
   "folder_descr" TEXT
   "profile_id" INTEGER [not null]
   "folder_id__parent" INTEGER
@@ -107,7 +107,7 @@ Table "folder" {
 
 Table "activity" {
   "activity_id" INTEGER [pk, not null, increment]
-  "activity_name" VARCHAR(256) [not null]
+  "activity_name" VARCHAR(255) [not null]
   "activity_descr" TEXT
   "folder_id" INTEGER [not null]
   "sort_order" INTEGER [not null, default: 0]
@@ -126,7 +126,7 @@ Table "activity" {
 
 Table "location" {
   "location_id" INTEGER [pk, not null, increment]
-  "location_name" VARCHAR(256) [not null]
+  "location_name" VARCHAR(255) [not null]
   "location_descr" TEXT
   "folder_id" INTEGER [not null]
   "sort_order" INTEGER [not null, default: 0]
@@ -146,7 +146,7 @@ Table "location" {
 
 Table "project" {
   "project_id" INTEGER [pk, not null, increment]
-  "project_name" VARCHAR(256) [not null]
+  "project_name" VARCHAR(255) [not null]
   "project_descr" TEXT
   "folder_id" INTEGER [not null]
   "sort_order" INTEGER [not null, default: 0]
@@ -169,7 +169,7 @@ Table "project" {
 
 Table "tag" {
   "tag_id" INTEGER [pk, not null, increment]
-  "tag_name" VARCHAR(256) [not null]
+  "tag_name" VARCHAR(255) [not null]
   "tag_descr" TEXT
   "folder_id" INTEGER [not null]
   "sort_order" INTEGER [not null, default: 0]
@@ -212,17 +212,31 @@ Table "journal_tag" {
   "journal_tag_id" INTEGER [pk, not null, increment]
   "journal_id" INTEGER [not null]
   "tag_id" INTEGER [not null]
+  "created_at" DATETIME [not null, default: `current_timestamp`]
 }
 
 Table "project_group" {
   "project_group_id" INTEGER [pk, not null, increment]
-  "project_group_name" TEXT [not null]
+  "project_group_name" VARCHAR(255) [not null]
   "project_group_descr" TEXT
   "account_id" INTEGER [not null]
-  "project_id" INTEGER [not null]
   "created_at" DATETIME [not null, default: `current_timestamp`]
   "modified_at" DATETIME [not null, default: `current_timestamp`]
+  Indexes {
+    (project_group_name, account_id) [unique, name: "idx_project_group_accounts"]
+  }
 }
+
+Table "project_group_project" {
+  "project_group_project_id" INTEGER [pk, not null, increment]
+  "project_group_id" INTEGER [not null]
+  "project_id" INTEGER [not null]
+  "modified_at" DATETIME [not null, default: `current_timestamp`]
+  Indexes {
+    (project_group_id, project_id) [unique, name: "idx_project_group_projects"]
+  }
+}
+
 
 Ref:"account"."account_id" < "profile"."account_id"
 
@@ -258,4 +272,6 @@ Ref:"tag"."tag_id" < "journal_tag"."tag_id"
 
 Ref:"account"."account_id" < "project_group"."account_id"
 
-Ref:"project"."project_id" < "project_group"."project_id"
+Ref:"project_group"."project_group_id" < "project_group_project"."project_group_id"
+
+Ref:"project"."project_id" < "project_group_project"."project_id"

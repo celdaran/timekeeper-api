@@ -81,16 +81,19 @@
 			<key>isToolbarVisible</key>
 			<true/>
 			<key>queries</key>
-			<string>SET FOREIGN_KEY_CHECKS = 0; -- Disable foreign key checks
+			<string>-- --------------------------------------------------
+-- Clear out database
+-- --------------------------------------------------
 
--- Construct and execute DROP TABLE statements for all tables
+SET FOREIGN_KEY_CHECKS = 0;
+
 SET @tables = NULL;
-SELECT GROUP_CONCAT(table_name) INTO @tables
+SELECT GROUP_CONCAT(TABLE_NAME) INTO @tables
 FROM information_schema.tables
-WHERE table_schema = (SELECT DATABASE()) -- Or replace (SELECT DATABASE()) with 'your_database_name'
-  AND table_type = 'BASE TABLE'; -- Exclude views if you only want to drop actual tables
+WHERE table_schema = (SELECT DATABASE())
+  AND table_type = 'BASE TABLE';
 
-SELECT IFNULL(@tables, 'dummy') INTO @tables; -- Handle case where no tables exist
+SELECT IFNULL(@tables, 'dummy') INTO @tables;
 
 SET @drop_statement = CONCAT('DROP TABLE IF EXISTS ', @tables);
 
@@ -98,9 +101,21 @@ PREPARE stmt FROM @drop_statement;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
-SET FOREIGN_KEY_CHECKS = 1; -- Re-enable foreign key checks</string>
-			<key>table</key>
-			<string>_timekeeper</string>
+SET FOREIGN_KEY_CHECKS = 1;
+
+-- --------------------------------------------------
+-- Run DDL from dbdiagram.io
+-- --------------------------------------------------
+
+SOURCE timekeeper5.ddl.sql
+SOURCE timekeeper5.ddl.ext.sql
+
+-- --------------------------------------------------
+-- Popualate tables
+-- --------------------------------------------------
+
+SOURCE timekeeper5.data.sql
+</string>
 			<key>view</key>
 			<string>SP_VIEW_CUSTOMQUERY</string>
 			<key>windowVerticalDividerPosition</key>

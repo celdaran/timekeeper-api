@@ -1,9 +1,9 @@
 CREATE TABLE `_schema` (
     `schema_id`      INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `schema_version` VARCHAR(32) UNIQUE  NOT NULL,
-    `schema_descr`   TEXT                NOT NULL,
+    `schema_version` VARCHAR(31) UNIQUE  NOT NULL,
+    `schema_descr`   VARCHAR(255)        NOT NULL,
     `applied_at`     DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `applied_by`     VARCHAR(256)        NOT NULL,
+    `applied_by`     VARCHAR(255)        NOT NULL,
     `status_id`      INT                 NOT NULL,
     `created_at`     DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
     `modified_at`    DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
@@ -11,7 +11,7 @@ CREATE TABLE `_schema` (
 
 CREATE TABLE `ref_date_preset` (
     `ref_date_preset_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `ref_date_preset_name`  TEXT                NOT NULL,
+    `ref_date_preset_name`  VARCHAR(255)        NOT NULL,
     `ref_date_preset_descr` TEXT,
     `created_at`            DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
     `modified_at`           DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
@@ -19,7 +19,7 @@ CREATE TABLE `ref_date_preset` (
 
 CREATE TABLE `ref_group_by` (
     `ref_group_by_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `ref_group_by_name`  TEXT                NOT NULL,
+    `ref_group_by_name`  VARCHAR(255)        NOT NULL,
     `ref_group_by_descr` TEXT,
     `created_at`         DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
     `modified_at`        DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
@@ -27,7 +27,7 @@ CREATE TABLE `ref_group_by` (
 
 CREATE TABLE `ref_time_display` (
     `ref_time_display_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `ref_time_display_name`  TEXT                NOT NULL,
+    `ref_time_display_name`  VARCHAR(255)        NOT NULL,
     `ref_time_display_descr` TEXT,
     `created_at`             DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
     `modified_at`            DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
@@ -35,7 +35,7 @@ CREATE TABLE `ref_time_display` (
 
 CREATE TABLE `ref_time_zone` (
     `ref_time_zone_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `ref_time_zone_name`  TEXT                NOT NULL,
+    `ref_time_zone_name`  VARCHAR(255)        NOT NULL,
     `ref_time_zone_descr` TEXT,
     `created_at`          DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
     `modified_at`         DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
@@ -43,10 +43,10 @@ CREATE TABLE `ref_time_zone` (
 
 CREATE TABLE `account` (
     `account_id`        INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `account_username`  TEXT                NOT NULL,
-    `account_password`  TEXT                NOT NULL,
+    `account_username`  VARCHAR(255)        NOT NULL,
+    `account_password`  VARCHAR(255)        NOT NULL,
+    `account_email`     VARCHAR(320)        NOT NULL,
     `account_descr`     TEXT,
-    `account_email`     TEXT,
     `project_id__last`  INT,
     `location_id__last` INT,
     `is_hidden`         BOOLEAN             NOT NULL DEFAULT FALSE,
@@ -59,7 +59,7 @@ CREATE TABLE `account` (
 
 CREATE TABLE `profile` (
     `profile_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `profile_name`  VARCHAR(256)        NOT NULL,
+    `profile_name`  VARCHAR(255)        NOT NULL,
     `profile_descr` TEXT,
     `account_id`    INTEGER             NOT NULL,
     `is_hidden`     BOOLEAN             NOT NULL DEFAULT FALSE,
@@ -72,7 +72,7 @@ CREATE TABLE `profile` (
 
 CREATE TABLE `folder` (
     `folder_id`         INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `folder_name`       TEXT                NOT NULL,
+    `folder_name`       VARCHAR(255)        NOT NULL,
     `folder_descr`      TEXT,
     `profile_id`        INTEGER             NOT NULL,
     `folder_id__parent` INTEGER,
@@ -88,7 +88,7 @@ CREATE TABLE `folder` (
 
 CREATE TABLE `activity` (
     `activity_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `activity_name`  VARCHAR(256)        NOT NULL,
+    `activity_name`  VARCHAR(255)        NOT NULL,
     `activity_descr` TEXT,
     `folder_id`      INTEGER             NOT NULL,
     `sort_order`     INTEGER             NOT NULL DEFAULT 0,
@@ -102,7 +102,7 @@ CREATE TABLE `activity` (
 
 CREATE TABLE `location` (
     `location_id`      INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `location_name`    VARCHAR(256)        NOT NULL,
+    `location_name`    VARCHAR(255)        NOT NULL,
     `location_descr`   TEXT,
     `folder_id`        INTEGER             NOT NULL,
     `sort_order`       INTEGER             NOT NULL DEFAULT 0,
@@ -117,7 +117,7 @@ CREATE TABLE `location` (
 
 CREATE TABLE `project` (
     `project_id`        INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `project_name`      VARCHAR(256)        NOT NULL,
+    `project_name`      VARCHAR(255)        NOT NULL,
     `project_descr`     TEXT,
     `folder_id`         INTEGER             NOT NULL,
     `sort_order`        INTEGER             NOT NULL DEFAULT 0,
@@ -135,7 +135,7 @@ CREATE TABLE `project` (
 
 CREATE TABLE `tag` (
     `tag_id`      INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `tag_name`    VARCHAR(256)        NOT NULL,
+    `tag_name`    VARCHAR(255)        NOT NULL,
     `tag_descr`   TEXT,
     `folder_id`   INTEGER             NOT NULL,
     `sort_order`  INTEGER             NOT NULL DEFAULT 0,
@@ -166,17 +166,24 @@ CREATE TABLE `journal` (
 CREATE TABLE `journal_tag` (
     `journal_tag_id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `journal_id`     INTEGER             NOT NULL,
-    `tag_id`         INTEGER             NOT NULL
+    `tag_id`         INTEGER             NOT NULL,
+    `created_at`     DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `project_group` (
     `project_group_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `project_group_name`  TEXT                NOT NULL,
+    `project_group_name`  VARCHAR(255)        NOT NULL,
     `project_group_descr` TEXT,
     `account_id`          INTEGER             NOT NULL,
-    `project_id`          INTEGER             NOT NULL,
     `created_at`          DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
     `modified_at`         DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
+CREATE TABLE `project_group_project` (
+    `project_group_project_id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `project_group_id`         INTEGER             NOT NULL,
+    `project_id`               INTEGER             NOT NULL,
+    `modified_at`              DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE UNIQUE INDEX `idx_schema_version` ON `_schema` (`schema_version`);
@@ -212,6 +219,10 @@ CREATE INDEX `idx_journal_project_id` ON `journal` (`project_id`);
 CREATE INDEX `idx_journal_activity_id` ON `journal` (`activity_id`);
 
 CREATE INDEX `idx_journal_location_id` ON `journal` (`location_id`);
+
+CREATE UNIQUE INDEX `idx_project_group_accounts` ON `project_group` (`project_group_name`, `account_id`);
+
+CREATE UNIQUE INDEX `idx_project_group_projects` ON `project_group_project` (`project_group_id`, `project_id`);
 
 ALTER TABLE `profile`
     ADD FOREIGN KEY (`account_id`) REFERENCES `account` (`account_id`);
@@ -264,5 +275,8 @@ ALTER TABLE `journal_tag`
 ALTER TABLE `project_group`
     ADD FOREIGN KEY (`account_id`) REFERENCES `account` (`account_id`);
 
-ALTER TABLE `project_group`
+ALTER TABLE `project_group_project`
+    ADD FOREIGN KEY (`project_group_id`) REFERENCES `project_group` (`project_group_id`);
+
+ALTER TABLE `project_group_project`
     ADD FOREIGN KEY (`project_id`) REFERENCES `project` (`project_id`);

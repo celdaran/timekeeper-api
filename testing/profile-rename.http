@@ -1,0 +1,7 @@
+PATCH {{baseUrl}}/api/v1/profile/1/name?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "value": "Music has been Renamed"
+}

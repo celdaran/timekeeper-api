@@ -1,0 +1,7 @@
+PATCH {{baseUrl}}/api/v1/account/1/last_location?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "value": "1"
+}

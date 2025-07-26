@@ -1,0 +1,9 @@
+POST {{baseUrl}}/api/v1/profile?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "profile": "Music",
+  "description": "This is my music profile",
+  "account": 1
+}

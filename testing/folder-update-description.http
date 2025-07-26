@@ -1,0 +1,7 @@
+PATCH {{baseUrl}}/api/v1/folder/1/description?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "value": "Oops, I should not have renamed this one!"
+}

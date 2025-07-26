@@ -1,0 +1,7 @@
+PATCH {{baseUrl}}/api/v1/folder/1/open?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "value": "300"
+}

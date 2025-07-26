@@ -1,0 +1,10 @@
+POST {{baseUrl}}/api/v1/folder?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "folder": "Video Editing",
+  "description": "All my video editing projects",
+  "profile": 2,
+  "parent": null
+}

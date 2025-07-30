@@ -6,7 +6,7 @@ class FolderService extends BaseService
     {
         parent::__construct($databaseService);
         $this->columnMap = [
-            'folder' => 'folder_name',
+            'name' => 'folder_name',
             'description' => 'folder_descr',
             'profile' => 'profile_id',
             'parent' => 'folder_id__parent',
@@ -17,19 +17,21 @@ class FolderService extends BaseService
         ];
     }
 
-    public function create(string $folderName, string $folderDescr, int $profileId, int $parentFolderId = null): int
+    public function create(array $data): array
     {
-        $payload = [
-            'folder_name' => $folderName,
-            'folder_descr' => $folderDescr,
-            'profile_id' => $profileId,
-            'folder_id__parent' => $parentFolderId,
+        $row = [
+            'folder_name' => $data['name'],
+            'folder_descr' => $data['description'],
+            'profile_id' => $data['profile'],
+            'folder_id__parent' => $data['parent'],
             'sort_order' => 0,
             'is_open' => true,
             'is_hidden' => 0,
             'is_deleted' => 0,
         ];
-        return $this->db->insert('folder', $payload);
+        return [
+            'id' => $this->db->insert('folder', $row),
+        ];
     }
 
     public function fetch(int $id): array

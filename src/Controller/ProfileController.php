@@ -14,52 +14,46 @@ final class ProfileController extends BaseController
         $this->profileService = $profileService;
     }
 
-    #[Route('/api/v1/profile/{profileId}', name: 'profile_fetch', methods: ['GET'])]
-    public function fetch(Request $request, int $profileId): JsonResponse
-    {
-        $profile = $this->profileService->fetch($profileId);
-        return $this->json(ApiResponse::success(['profile' => $profile]));
-    }
-
     #[Route('/api/v1/profile', name: 'profile_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $profile = $this->profileService->create($data['profile'], $data['description'], $data['account']);
-        return $this->json(ApiResponse::success(['account' => $profile]));
+        return $this->_create($this->profileService, $request);
     }
 
-    #[Route('/api/v1/profile/{profileId}', name: 'profile_update', methods: ['PUT'])]
-    public function update(Request $request, int $profileId): JsonResponse
+    #[Route('/api/v1/profile/{id}', name: 'profile_fetch', methods: ['GET'])]
+    public function fetch(Request $request, int $id): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $this->profileService->update($profileId, $data);
-        return $this->json(ApiResponse::success());
+        return $this->_fetch($this->profileService, $id, 'profile');
     }
 
-    #[Route('/api/v1/profile/{profileId}', name: 'profile_delete', methods: ['PATCH'])]
-    public function delete(Request $request, int $profileId): JsonResponse
+    #[Route('/api/v1/profile/{id}', name: 'profile_update', methods: ['PUT'])]
+    public function update(Request $request, int $id): JsonResponse
     {
-        if ($request->query->has('hide')) {
-            if ($request->query->get('hide') === 'true') {
-                $this->profileService->hide($profileId);
-                return $this->json(ApiResponse::success());
-            }
-        }
-        $this->profileService->delete($profileId);
-        return $this->json(ApiResponse::success());
+        return $this->_update($this->profileService, $id, $request);
     }
 
-    #[Route('/api/v1/profile/{profileId}/name', name: 'profile_update_name', methods: ['PATCH'])]
-    public function changeName(Request $request, int $profileId): JsonResponse
+    #[Route('/api/v1/profile/{id}', name: 'profile_delete', methods: ['DELETE'])]
+    public function delete(Request $request, int $id): JsonResponse
     {
-        return $this->_patch($request, 'profile', $profileId, $this->profileService);
+        return $this->_delete($this->profileService, $id, $request);
     }
 
-    #[Route('/api/v1/profile/{profileId}/description', name: 'profile_update_description', methods: ['PATCH'])]
-    public function changeDescription(Request $request, int $profileId): JsonResponse
+    #[Route('/api/v1/profile/{id}', name: 'profile_undelete', methods: ['PATCH'])]
+    public function undelete(Request $request, int $id): JsonResponse
     {
-        return $this->_patch($request, 'description', $profileId, $this->profileService);
+        return $this->_undelete($this->profileService, $id, $request);
+    }
+
+    #[Route('/api/v1/profile/{id}/name', name: 'profile_update_name', methods: ['PATCH'])]
+    public function changeName(Request $request, int $id): JsonResponse
+    {
+        return $this->_patch($this->profileService, 'profile', $id, $request);
+    }
+
+    #[Route('/api/v1/profile/{id}/description', name: 'profile_update_description', methods: ['PATCH'])]
+    public function changeDescription(Request $request, int $id): JsonResponse
+    {
+        return $this->_patch($this->profileService, 'description', $id, $request);
     }
 
 }

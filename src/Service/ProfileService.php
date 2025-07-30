@@ -6,7 +6,7 @@ class ProfileService extends BaseService
     {
         parent::__construct($databaseService);
         $this->columnMap = [
-            'profile' => 'profile_name',
+            'name' => 'profile_name',
             'description' => 'profile_descr',
             'account' => 'account_id',
             'hidden' => 'is_hidden',
@@ -19,16 +19,21 @@ class ProfileService extends BaseService
         return $this->_fetch('profile', 'profile_id', $id);
     }
 
-    public function create(string $profileName, string $profileDescr, int $accountId): int
+    public function create(array $data): array
     {
-        $payload = [
+        $profileName = $data['name'];
+        $profileDescr = $data['description'];
+        $accountId = $data['account'];
+        $row = [
             'profile_name' => $profileName,
             'profile_descr' => $profileDescr,
             'account_id' => $accountId,
             'is_hidden' => 0,
             'is_deleted' => 0,
         ];
-        return $this->db->insert('profile', $payload);
+        return [
+            'id' => $this->db->insert('profile', $row),
+        ];
     }
 
     public function update(int $id, array $data): bool

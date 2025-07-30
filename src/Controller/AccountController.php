@@ -17,77 +17,55 @@ final class AccountController extends BaseController
     #[Route('/api/v1/account', name: 'account_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        $account = $this->accountService->create($data['username'], $data['password'], $data['email']);
-        return $this->json(ApiResponse::success(['account' => $account]));
+        return $this->_create($this->accountService, $request);
     }
 
-    #[Route('/api/v1/account/{accountId}', name: 'account_fetch', methods: ['GET'])]
-    public function fetch(Request $request, int $accountId): JsonResponse
+    #[Route('/api/v1/account/{id}', name: 'account_fetch', methods: ['GET'])]
+    public function fetch(Request $request, int $id): JsonResponse
     {
-        $account = $this->accountService->fetch($accountId);
-        return $this->json(ApiResponse::success(['account' => $account]));
+        return $this->_fetch($this->accountService, $id, 'account');
     }
 
-    #[Route('/api/v1/account/{accountId}', name: 'account_update', methods: ['PUT'])]
-    public function update(Request $request, int $accountId): JsonResponse
+    #[Route('/api/v1/account/{id}', name: 'account_update', methods: ['PUT'])]
+    public function update(Request $request, int $id): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-         if ($this->accountService->update($accountId, $data)) {
-             return $this->json(ApiResponse::success());
-         } else {
-             return $this->json(ApiResponse::error(['message' => 'no rows updated']), 404);
-         }
+        return $this->_update($this->accountService, $id, $request);
     }
 
-    #[Route('/api/v1/account/{accountId}', name: 'account_delete', methods: ['DELETE'])]
-    public function delete(Request $request, int $accountId): JsonResponse
+    #[Route('/api/v1/account/{id}', name: 'account_delete', methods: ['DELETE'])]
+    public function delete(Request $request, int $id): JsonResponse
     {
-        if ($request->query->has('hide')) {
-            if ($request->query->get('hide') === 'true') {
-                $this->accountService->hide($accountId);
-                return $this->json(ApiResponse::success());
-            }
-        }
-        $this->accountService->delete($accountId);
-        return $this->json(ApiResponse::success());
+        return $this->_delete($this->accountService, $id, $request);
     }
 
-    #[Route('/api/v1/account/{accountId}', name: 'account_undelete', methods: ['PATCH'])]
-    public function undelete(Request $request, int $accountId): JsonResponse
+    #[Route('/api/v1/account/{id}', name: 'account_undelete', methods: ['PATCH'])]
+    public function undelete(Request $request, int $id): JsonResponse
     {
-        if ($request->query->has('hide')) {
-            if ($request->query->get('hide') === 'true') {
-                $this->accountService->unhide($accountId);
-                return $this->json(ApiResponse::success());
-            }
-        }
-        $this->accountService->undelete($accountId);
-        return $this->json(ApiResponse::success());
+        return $this->_undelete($this->accountService, $id, $request);
     }
 
-    #[Route('/api/v1/account/{accountId}/password', name: 'account_update_password', methods: ['PATCH'])]
-    public function changePassword(Request $request, int $accountId): JsonResponse
+    #[Route('/api/v1/account/{id}/password', name: 'account_update_password', methods: ['PATCH'])]
+    public function changePassword(Request $request, int $id): JsonResponse
     {
-        return $this->_patch($request, 'password', $accountId, $this->accountService);
+        return $this->_patch($this->accountService, 'password', $id, $request);
     }
 
-    #[Route('/api/v1/account/{accountId}/email', name: 'account_update_email', methods: ['PATCH'])]
-    public function changeEmail(Request $request, int $accountId): JsonResponse
+    #[Route('/api/v1/account/{id}/email', name: 'account_update_email', methods: ['PATCH'])]
+    public function changeEmail(Request $request, int $id): JsonResponse
     {
-        return $this->_patch($request, 'email', $accountId, $this->accountService);
+        return $this->_patch($this->accountService, 'email', $id, $request);
     }
 
-    #[Route('/api/v1/account/{accountId}/last_project', name: 'account_update_last_project', methods: ['PATCH'])]
-    public function changeLastProject(Request $request, int $accountId): JsonResponse
+    #[Route('/api/v1/account/{id}/last_project', name: 'account_update_last_project', methods: ['PATCH'])]
+    public function changeLastProject(Request $request, int $id): JsonResponse
     {
-        return $this->_patch($request, 'last_project', $accountId, $this->accountService);
+        return $this->_patch($this->accountService, 'last_project', $id, $request);
     }
 
-    #[Route('/api/v1/account/{accountId}/last_location', name: 'account_update_last_location', methods: ['PATCH'])]
-    public function changeLastLocation(Request $request, int $accountId): JsonResponse
+    #[Route('/api/v1/account/{id}/last_location', name: 'account_update_last_location', methods: ['PATCH'])]
+    public function changeLastLocation(Request $request, int $id): JsonResponse
     {
-        return $this->_patch($request, 'last_location', $accountId, $this->accountService);
+        return $this->_patch($this->accountService, 'last_location', $id, $request);
     }
 
 }

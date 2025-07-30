@@ -18,6 +18,8 @@ abstract class BaseService
     // Methods to be overridden
     //--------------------------------------------
 
+    abstract protected function create(array $data): array;
+
     abstract protected function fetch(int $id): array;
 
     abstract protected function update(int $id, array $data): bool;

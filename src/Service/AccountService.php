@@ -3,11 +3,21 @@
 class AccountService extends BaseService
 {
     private ProfileService $profileService;
+    private FolderService $folderService;
+    private ProjectService $projectService;
 
-    public function __construct(DatabaseService $databaseService, ProfileService $profileService)
+    public function __construct(
+        DatabaseService $databaseService,
+        ProfileService $profileService,
+        FolderService $folderService,
+        ProjectService $projectService)
     {
         parent::__construct($databaseService);
+
         $this->profileService = $profileService;
+        $this->folderService = $folderService;
+        $this->projectService = $projectService;
+
         $this->columnMap = [
             'id' => 'account_id',
             'username' => 'account_username',
@@ -21,43 +31,54 @@ class AccountService extends BaseService
         ];
     }
 
-    public function create(string $username, string $password, string $email): array
+    public function create(array $data): array
     {
+        // Extract key fields
+        $username = $data['username'];
+        $password = $data['password'];
+        $email = $data['email'];
+
         // Hash the password
         $hashedPassword = password_hash($password, PASSWORD_ARGON2ID);
 
         // Create row in account table
-        $payload = [
+        $row = [
             'account_username' => $username,
             'account_password' => $hashedPassword,
             'account_email' => $email,
             'is_hidden' => 0,
             'is_deleted' => 0,
         ];
-        $accountId = $this->db->insert('account', $payload);
+        $accountId = $this->db->insert('account', $row);
 
         // Create default profile
-        $profileId = $this->profileService->create('Default', 'This is the default profile', $accountId);
-
-        // Create profile-specific, invisible root folder
         $payload = [
-            'folder_name' => '06e4c5e9-9f05-4f82-9d70-f8a04ff205f1',
-            'folder_descr' => 'This is the root folder, required by the schema and hidden from the user.',
-            'profile_id' => $profileId,
-            'is_hidden' => 1,
+            'name' => 'Default Profile',
+            'description' => 'This is the default profile.',
+            'account' => $accountId,
         ];
-        $folderId = $this->db->insert('folder', $payload);
+        $profile = $this->profileService->create($payload);
+        $profileId = $profile['id'];
+
+        $payload = [
+            'name' => 'f0143152-d8a6-4e26-a418-50763bb396bf',
+            'description' => 'This is the root folder, required by the schema and hidden from the user.',
+            'profile' => $profileId,
+            'parent' => null,
+        ];
+        $folder = $this->folderService->create($payload);
+        $folderId = $folder['id'];
+        $this->folderService->hide($folderId);
 
         // Create default dimensions
         $payload = [
-            'project_name' => 'Default Project',
-            'project_descr' => 'This is the default project. Feel free to use as-is or edit as needed.',
-            'folder_id' => $folderId,
-            'sort_order' => 1,
-            'is_hidden' => 0,
-            'is_deleted' => 0,
+            'name' => 'Default Project',
+            'description' => 'This is the default project. Feel free to use as-is or edit as needed.',
+            'folder' => $folderId,
+            'external_ident' => null,
+            'external_url' => null,
         ];
-        $this->db->insert('project', $payload);
+        $this->projectService->create($payload);
 
         $payload = [
             'activity_name' => 'Default Activity',

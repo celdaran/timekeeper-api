@@ -30,6 +30,10 @@ security:
             provider: api_key_user_provider # Ensure this points to the right provider
 
     access_control:
+        # Allow anonymous access to the API documentation routes
+        - { path: ^/api/doc, roles: PUBLIC_ACCESS }
+        - { path: ^/api/doc.json, roles: PUBLIC_ACCESS }
+        - { path: ^/api/doc.yaml, roles: PUBLIC_ACCESS }
         # This path *must* match the URL the request is coming in on.
         # If your route is /api/v1/endpoint, this should be ^/api/
         # or if you need more granularity, it could be ^/api/v1/

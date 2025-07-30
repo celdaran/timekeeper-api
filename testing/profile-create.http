@@ -3,7 +3,7 @@ Content-Type: application/json
 X-API-KEY: {{adminToken}}
 
 {
-  "profile": "Music",
-  "description": "This is my music profile",
+  "name": "{{$random.beer.name}}",
+  "description": "This is my new profile created via profile-create.http",
   "account": 1
 }

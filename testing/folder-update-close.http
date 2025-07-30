@@ -1,0 +1,3 @@
+PATCH {{baseUrl}}/api/v1/folder/1/close?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}

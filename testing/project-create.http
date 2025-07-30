@@ -1,0 +1,11 @@
+POST {{baseUrl}}/api/v1/project?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "name": "{{$random.book.title}}",
+  "description": "This is a new project under folder 1",
+  "folder": 1,
+  "external_ident": "{{$random.integer(10000,99999)}}",
+  "external_url": "{{$random.internet.url}}"
+}

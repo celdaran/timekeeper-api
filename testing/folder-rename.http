@@ -3,5 +3,5 @@ Content-Type: application/json
 X-API-KEY: {{adminToken}}
 
 {
-  "value": "New Folder Name"
+  "value": "New Name: {{$random.company.name}}"
 }

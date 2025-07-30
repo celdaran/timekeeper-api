@@ -1,7 +1,7 @@
-PATCH {{baseUrl}}/api/v1/folder/10/parent?XDEBUG_SESSION_START=PHPSTORM
+PATCH {{baseUrl}}/api/v1/folder/2/parent?XDEBUG_SESSION_START=PHPSTORM
 Content-Type: application/json
 X-API-KEY: {{adminToken}}
 
 {
-  "value": "5"
+  "value": "1"
 }

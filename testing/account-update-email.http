@@ -3,5 +3,5 @@ Content-Type: application/json
 X-API-KEY: {{adminToken}}
 
 {
-  "value": "new-email@example.com"
+  "value": "new.{{$random.email}}"
 }

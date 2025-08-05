@@ -1,0 +1,7 @@
+PATCH {{baseUrl}}/api/v1/project/1/external_url?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "value": "https://mycompany.atlassian.net/browse/TASK-473"
+}

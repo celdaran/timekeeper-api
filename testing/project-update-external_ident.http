@@ -1,0 +1,7 @@
+PATCH {{baseUrl}}/api/v1/project/1/external_ident?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "value": "TK-473"
+}

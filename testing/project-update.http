@@ -1,4 +1,4 @@
-PUT {{baseUrl}}/api/v1/profile/9?XDEBUG_SESSION_START=PHPSTORM
+PUT {{baseUrl}}/api/v1/project/9?XDEBUG_SESSION_START=PHPSTORM
 Content-Type: application/json
 X-API-KEY: {{adminToken}}
 

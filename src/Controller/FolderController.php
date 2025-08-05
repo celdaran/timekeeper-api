@@ -53,7 +53,7 @@ final class FolderController extends BaseController
     #[Route('/api/v1/folder/{id}/name', name: 'folder_update_name', methods: ['PATCH'])]
     public function changeName(Request $request, int $id): JsonResponse
     {
-        return $this->_patch($this->folderService, 'folder', $id, $request);
+        return $this->_patch($this->folderService, 'name', $id, $request);
     }
 
     #[Route('/api/v1/folder/{id}/description', name: 'folder_update_description', methods: ['PATCH'])]
@@ -65,7 +65,7 @@ final class FolderController extends BaseController
     #[Route('/api/v1/folder/{id}/order', name: 'folder_update_order', methods: ['PATCH'])]
     public function changeSortOrder(Request $request, int $id): JsonResponse
     {
-        return $this->_patch($this->folderService, 'sort_order', $id, $request);
+        return $this->_patch($this->folderService, 'sort', $id, $request);
     }
 
     #[Route('/api/v1/folder/{id}/parent', name: 'folder_update_parent', methods: ['PATCH'])]

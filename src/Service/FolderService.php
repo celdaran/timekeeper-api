@@ -13,7 +13,7 @@ class FolderService extends BaseService
             'description' => 'folder_descr',
             'profile' => 'profile_id',
             'parent' => 'folder_id__parent',
-            'sort_order' => 'sort_order',
+            'sort' => 'sort_order',
             'open' => 'is_open',
             'hidden' => 'is_hidden',
             'deleted' => 'is_deleted',

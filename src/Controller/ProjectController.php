@@ -53,19 +53,19 @@ final class ProjectController extends BaseController
     #[Route('/api/v1/project/{id}/name', name: 'project_update_name', methods: ['PATCH'])]
     public function changeName(Request $request, int $id): JsonResponse
     {
-        return $this->_patch($this->projectService, 'project', $id, $request);
+        return $this->_patch($this->projectService, 'name', $id, $request);
     }
 
     #[Route('/api/v1/project/{id}/description', name: 'project_update_description', methods: ['PATCH'])]
     public function changeDescription(Request $request, int $id): JsonResponse
     {
-        return $this->_patch($this->projectService, 'project', $id, $request);
+        return $this->_patch($this->projectService, 'description', $id, $request);
     }
 
     #[Route('/api/v1/project/{id}/order', name: 'project_update_order', methods: ['PATCH'])]
     public function changeSortOrder(Request $request, int $id): JsonResponse
     {
-        return $this->_patch($this->projectService, 'sort_order', $id, $request);
+        return $this->_patch($this->projectService, 'sort', $id, $request);
     }
 
     #[Route('/api/v1/project/{id}/parent', name: 'project_update_parent', methods: ['PATCH'])]

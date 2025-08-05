@@ -11,6 +11,11 @@ class ProjectService extends BaseService
             'name' => 'project_name',
             'description' => 'project_descr',
             'folder' => 'folder_id',
+            'sort' => 'sort_order',
+            'hidden' => 'is_hidden',
+            'deleted' => 'is_deleted',
+            'last_activity' => 'activity_id__last',
+            'last_location' => 'location_id__last',
             'external_ident' => 'external_ident',
             'external_url' => 'external_url',
         ];

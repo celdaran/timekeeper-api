@@ -1,0 +1,9 @@
+POST {{baseUrl}}/api/v1/account?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "username": "a",
+  "password": "{{$random.alphanumeric(16)}}",
+  "email": "{{$random.email}}"
+}

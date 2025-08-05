@@ -5,9 +5,9 @@ nelmio_api_doc:
             description: REST interface for Timekeeper 5
             version: 5.0.0
         servers:
-            - url: http://localhost:8000/api/v1
+            - url: http://localhost:8000/
               description: Local Development Server
-            - url: https://api.technitivity.com/public/index.php/api/v1
+            - url: https://api.technitivity.com/public/index.php/
               description: Production Server
     areas:
         path_patterns:

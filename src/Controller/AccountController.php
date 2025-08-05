@@ -4,8 +4,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 
+use OpenApi\Attributes as OA;
+
 use App\Service\AccountService;
 
+#[OA\Tag(name: 'Account Management')]
+#[Route('/api/v1/account')]
 final class AccountController extends BaseController
 {
     private AccountService $accountService;
@@ -14,8 +18,32 @@ final class AccountController extends BaseController
         $this->accountService = $accountService;
     }
 
-    #[Route('/api/v1/account', name: 'account_create', methods: ['POST'])]
     public function create(Request $request): JsonResponse
+    #[OA\Post(
+        description: 'Registers a new account in the system with the provided details in the payload.',
+        summary: 'Create a new user account'
+    )]
+    #[OA\Response(
+        response: 201,
+        description: 'Account created successfully',
+        content: new OA\JsonContent(
+            type: 'object',
+            example: ['status' => 'created', 'payload' => ['account' => ['account_id' => 17, 'profile_id' => 17, 'folder_id' => 17]]]
+        )
+    )]
+    #[OA\Response(
+        response: 400,
+        description: 'Client-side error occurred'
+    )]
+    #[OA\Response(
+        response: 422,
+        description: 'Invalid input data or validation errors'
+    )]
+    #[OA\Response(
+        response: 500,
+        description: 'Server side error occurred'
+    )]
+    #[Route('', name: 'account_create', methods: ['POST'])]
     {
         return $this->_create($this->accountService, $request);
     }

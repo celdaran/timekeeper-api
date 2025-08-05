@@ -1,0 +1,8 @@
+PUT {{baseUrl}}/api/v1/activity/9?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "name": "{{$random.lorem.word}}",
+  "description": "This is an updated description"
+}

@@ -1,0 +1,8 @@
+PUT {{baseUrl}}/api/v1/tag/1?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "name": "{{$random.color.name}}",
+  "description": "This is an updated tag description"
+}

@@ -1,0 +1,9 @@
+POST {{baseUrl}}/api/v1/tag?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "name": "{{$random.color.name}}",
+  "description": "This is a new tag under folder 23",
+  "folder": 23
+}

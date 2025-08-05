@@ -1,5 +1,7 @@
 <?php namespace App\Service;
 
+use App\Dto\ProfileCreateRequest;
+
 class ProfileService extends BaseService
 {
     public function __construct(DatabaseService $databaseService)
@@ -19,11 +21,12 @@ class ProfileService extends BaseService
         return $this->_fetch('profile', 'profile_id', $id);
     }
 
-    public function create(array $data): array
+    public function create(ProfileCreateRequest $profile): int
     {
-        $profileName = $data['name'];
-        $profileDescr = $data['description'];
-        $accountId = $data['account'];
+        $profileName = $profile->name;
+        $profileDescr = $profile->description;
+        $accountId = $profile->account;
+
         $row = [
             'profile_name' => $profileName,
             'profile_descr' => $profileDescr,
@@ -31,9 +34,8 @@ class ProfileService extends BaseService
             'is_hidden' => 0,
             'is_deleted' => 0,
         ];
-        return [
-            'id' => $this->db->insert('profile', $row),
-        ];
+
+        return $this->db->insert('profile', $row);
     }
 
     public function update(int $id, array $data): bool

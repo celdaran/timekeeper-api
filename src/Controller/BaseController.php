@@ -8,13 +8,6 @@ use App\Service\BaseService;
 
 class BaseController extends AbstractController
 {
-    protected function _create(BaseService $service, Request $request): JsonResponse
-    {
-        $payload = json_decode($request->getContent(), true);
-        $account = $service->create($payload);
-        return $this->json(ApiResponse::success(['account' => $account]));
-    }
-
     protected function _fetch(BaseService $service, int $id, string $entityName): JsonResponse
     {
         $entity = $service->fetch($id);

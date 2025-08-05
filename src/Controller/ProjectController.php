@@ -1,11 +1,16 @@
 <?php namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 
+use OpenApi\Attributes as OA;
+
+use App\Dto\ProjectCreateRequest;
 use App\Service\ProjectService;
 
+#[OA\Tag(name: 'Project Management')]
 final class ProjectController extends BaseController
 {
     private ProjectService $projectService;
@@ -15,9 +20,10 @@ final class ProjectController extends BaseController
     }
 
     #[Route('/api/v1/project', name: 'project_create', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
+    public function create(#[MapRequestPayload] ProjectCreateRequest $project): JsonResponse
     {
-        return $this->_create($this->projectService, $request);
+        $projectId = $this->projectService->create($project);
+        return $this->json(ApiResponse::success(['project' => $projectId]));
     }
 
     #[Route('/api/v1/project/{id}', name: 'project_fetch', methods: ['GET'])]

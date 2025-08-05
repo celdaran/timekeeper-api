@@ -1,11 +1,16 @@
 <?php namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 
+use OpenApi\Attributes as OA;
+
+use App\Dto\ProfileCreateRequest;
 use App\Service\ProfileService;
 
+#[OA\Tag(name: 'Profile Management')]
 final class ProfileController extends BaseController
 {
     private ProfileService $profileService;
@@ -15,9 +20,10 @@ final class ProfileController extends BaseController
     }
 
     #[Route('/api/v1/profile', name: 'profile_create', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
+    public function create(#[MapRequestPayload] ProfileCreateRequest $profile): JsonResponse
     {
-        return $this->_create($this->profileService, $request);
+        $profileId = $this->profileService->create($profile);
+        return $this->json(ApiResponse::created(['profile' => $profileId]));
     }
 
     #[Route('/api/v1/profile/{id}', name: 'profile_fetch', methods: ['GET'])]

@@ -1,5 +1,7 @@
 <?php namespace App\Service;
 
+use App\Dto\ProjectCreateRequest;
+
 class ProjectService extends BaseService
 {
     public function __construct(DatabaseService $databaseService)
@@ -14,21 +16,19 @@ class ProjectService extends BaseService
         ];
     }
 
-    public function create(array $data): array
+    public function create(ProjectCreateRequest $project): int
     {
         $row = [
-            'project_name' => $data['name'],
-            'project_descr' => $data['description'],
-            'folder_id' => $data['folder'],
+            'project_name' => $project->name,
+            'project_descr' => $project->description,
+            'folder_id' => $project->folder,
             'sort_order' => 0,
             'is_hidden' => 0,
             'is_deleted' => 0,
-            'external_ident' => $data['external_ident'],
-            'external_url' => $data['external_url'],
+            'external_ident' => $project->externalIdent,
+            'external_url' => $project->externalUrl,
         ];
-        return [
-            'id' => $this->db->insert('project', $row),
-        ];
+        return $this->db->insert('project', $row);
     }
 
     public function fetch(int $id): array

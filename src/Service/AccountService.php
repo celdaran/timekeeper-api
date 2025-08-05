@@ -1,5 +1,10 @@
 <?php namespace App\Service;
 
+use App\Dto\AccountCreateRequest;
+use App\Dto\FolderCreateRequest;
+use App\Dto\ProfileCreateRequest;
+use App\Dto\ProjectCreateRequest;
+
 class AccountService extends BaseService
 {
     private ProfileService $profileService;
@@ -31,54 +36,46 @@ class AccountService extends BaseService
         ];
     }
 
-    public function create(array $data): array
+    public function getEntityType(): string
     {
-        // Extract key fields
-        $username = $data['username'];
-        $password = $data['password'];
-        $email = $data['email'];
+        // Note: not yet used
+        return 'account';
+    }
 
-        // Hash the password
-        $hashedPassword = password_hash($password, PASSWORD_ARGON2ID);
-
-        // Create row in account table
+    public function create(AccountCreateRequest $account): array
+    {
+        // AccountCreateRequest row in account table
         $row = [
-            'account_username' => $username,
-            'account_password' => $hashedPassword,
-            'account_email' => $email,
+            'account_username' => $account->username,
+            'account_password' => password_hash($account->password, PASSWORD_ARGON2ID),
+            'account_email' => $account->email,
             'is_hidden' => 0,
             'is_deleted' => 0,
         ];
         $accountId = $this->db->insert('account', $row);
 
-        // Create default profile
-        $payload = [
-            'name' => 'Default Profile',
-            'description' => 'This is the default profile.',
-            'account' => $accountId,
-        ];
-        $profile = $this->profileService->create($payload);
-        $profileId = $profile['id'];
+        // AccountCreateRequest default profile
+        $profile = new ProfileCreateRequest();
+        $profile->name = 'Default Profile';
+        $profile->description = 'This is the default profile.';
+        $profile->account = $accountId;
+        $profileId = $this->profileService->create($profile);
 
-        $payload = [
-            'name' => 'f0143152-d8a6-4e26-a418-50763bb396bf',
-            'description' => 'This is the root folder, required by the schema and hidden from the user.',
-            'profile' => $profileId,
-            'parent' => null,
-        ];
-        $folder = $this->folderService->create($payload);
-        $folderId = $folder['id'];
-        $this->folderService->hide($folderId);
+        $folder = new FolderCreateRequest();
+        $folder->name = 'f0143152-d8a6-4e26-a418-50763bb396bf';
+        $folder->description = 'This is the root folder, required by the schema and hidden from the user.';
+        $folder->profile = $profileId;
+        $folder->parent = null;
+        $folder->sort = 1;
+        $folder->hidden = 1;
+        $folderId = $this->folderService->create($folder);
 
-        // Create default dimensions
-        $payload = [
-            'name' => 'Default Project',
-            'description' => 'This is the default project. Feel free to use as-is or edit as needed.',
-            'folder' => $folderId,
-            'external_ident' => null,
-            'external_url' => null,
-        ];
-        $this->projectService->create($payload);
+        // AccountCreateRequest default dimensions
+        $project = new ProjectCreateRequest();
+        $project->name = 'Default Project';
+        $project->description = 'This is the default project. Feel free to use as-is or edit as needed.';
+        $project->folder = $folderId;
+        $this->projectService->create($project);
 
         $payload = [
             'activity_name' => 'Default Activity',

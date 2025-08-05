@@ -1,5 +1,8 @@
 <?php namespace App\Service;
 
+use App\Dto\FolderCreateRequest;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
+
 class FolderService extends BaseService
 {
     public function __construct(DatabaseService $databaseService)
@@ -17,21 +20,19 @@ class FolderService extends BaseService
         ];
     }
 
-    public function create(array $data): array
+    public function create(#[MapRequestPayload] FolderCreateRequest $folder): int
     {
         $row = [
-            'folder_name' => $data['name'],
-            'folder_descr' => $data['description'],
-            'profile_id' => $data['profile'],
-            'folder_id__parent' => $data['parent'],
-            'sort_order' => 0,
-            'is_open' => true,
-            'is_hidden' => 0,
+            'folder_name' => $folder->name,
+            'folder_descr' => $folder->description,
+            'profile_id' => $folder->profile,
+            'folder_id__parent' => $folder->parent,
+            'sort_order' => $folder->sort,
+            'is_open' => $folder->open,
+            'is_hidden' => $folder->hidden,
             'is_deleted' => 0,
         ];
-        return [
-            'id' => $this->db->insert('folder', $row),
-        ];
+        return $this->db->insert('folder', $row);
     }
 
     public function fetch(int $id): array

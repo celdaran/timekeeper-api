@@ -6,6 +6,10 @@ class ApiResponse
         return ApiResponse::payload('ok', $payload);
     }
 
+    public static function created(array $payload = []) : array {
+        return ApiResponse::payload('created', $payload);
+    }
+
     public static function error(array $payload) : array {
         return ApiResponse::payload('error', $payload);
     }

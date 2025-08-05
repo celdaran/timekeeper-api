@@ -1,11 +1,16 @@
 <?php namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
 
+use OpenApi\Attributes as OA;
+
+use App\Dto\FolderCreateRequest;
 use App\Service\FolderService;
 
+#[OA\Tag(name: 'Folder Management')]
 final class FolderController extends BaseController
 {
     private FolderService $folderService;
@@ -15,9 +20,10 @@ final class FolderController extends BaseController
     }
 
     #[Route('/api/v1/folder', name: 'folder_create', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
+    public function create(#[MapRequestPayload] FolderCreateRequest $folder): JsonResponse
     {
-        return $this->_create($this->folderService, $request);
+        $folderId = $this->folderService->create($folder);
+        return $this->json(ApiResponse::created(['folder' => $folderId]));
     }
 
     #[Route('/api/v1/folder/{id}', name: 'folder_fetch', methods: ['GET'])]

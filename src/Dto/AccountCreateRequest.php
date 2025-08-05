@@ -5,7 +5,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[OA\Schema(
     schema: 'AccountCreateRequest',
-    description: 'Data required to create a new user account'
+    description: 'Data required to create a new user Account'
 )]
 class AccountCreateRequest
 {
@@ -25,6 +25,6 @@ class AccountCreateRequest
     #[Assert\Length(min: 3, max: 320, minMessage: 'Email address must be at least {{ limit }} characters long.')]
     public string $email;
 
-    #[OA\Property(description: 'An optional description for the account, useful if you have more than one account.', nullable: true)]
+    #[OA\Property(description: 'An optional description for the Account (useful if you have more than one)', nullable: true)]
     public ?string $description = null;
 }

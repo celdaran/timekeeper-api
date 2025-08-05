@@ -49,7 +49,6 @@ abstract class BaseService
                 $payload[$this->columnMap[$key]] = $value;
             }
         }
-        $payload['modified_at'] = date('Y-m-d H:i:s');
         return $this->db->update($table, $payload, $pk, $id);
     }
 
@@ -58,7 +57,6 @@ abstract class BaseService
         $payload = [
             'is_deleted' => 1,
             'deleted_at' => date('Y-m-d H:i:s'),
-            'modified_at' => date('Y-m-d H:i:s'),
         ];
         return $this->db->update($table, $payload, $pk, $id);
     }
@@ -68,7 +66,6 @@ abstract class BaseService
         $payload = [
             'is_hidden' => 1,
             'hidden_at' => date('Y-m-d H:i:s'),
-            'modified_at' => date('Y-m-d H:i:s'),
         ];
         return $this->db->update($table, $payload, $pk, $id);
     }
@@ -78,7 +75,6 @@ abstract class BaseService
         $payload = [
             'is_deleted' => 0,
             'deleted_at' => null,
-            'modified_at' => date('Y-m-d H:i:s'),
         ];
         return $this->db->update($table, $payload, $pk, $id);
     }
@@ -88,7 +84,6 @@ abstract class BaseService
         $payload = [
             'is_hidden' => 0,
             'hidden_at' => null,
-            'modified_at' => date('Y-m-d H:i:s'),
         ];
         return $this->db->update($table, $payload, $pk, $id);
     }

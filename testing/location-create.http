@@ -1,0 +1,9 @@
+POST {{baseUrl}}/api/v1/location?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "name": "{{$random.address.cityName}}",
+  "description": "This is a new location under folder 1",
+  "folder": 1
+}

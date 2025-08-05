@@ -1,0 +1,7 @@
+PATCH {{baseUrl}}/api/v1/location/1/timezone?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "value": "10"
+}

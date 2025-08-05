@@ -126,7 +126,6 @@ CREATE TABLE `project` (
     `hidden_at`         DATETIME,
     `deleted_at`        DATETIME,
     `activity_id__last` INTEGER,
-    `location_id__last` INTEGER,
     `external_ident`    TEXT,
     `external_url`      TEXT,
     `created_at`        DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),

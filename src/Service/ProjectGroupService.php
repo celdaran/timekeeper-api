@@ -1,6 +1,7 @@
 <?php namespace App\Service;
 
 use App\Dto\ProjectGroupCreateRequest;
+use App\Dto\ProjectGroupLinkRequest;
 
 class ProjectGroupService extends BaseService
 {
@@ -52,6 +53,15 @@ class ProjectGroupService extends BaseService
     public function unhide(int $id): bool
     {
         return $this->_unhide('project_group', 'project_group_id', $id);
+    }
+
+    public function link(ProjectGroupLinkRequest $linkRequest): int
+    {
+        $row = [
+            'project_group_id' => $linkRequest->project_group,
+            'project_id' => $linkRequest->project,
+        ];
+        return $this->db->insert('project_group_project', $row);
     }
 
 }

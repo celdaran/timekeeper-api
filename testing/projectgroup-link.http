@@ -1,0 +1,8 @@
+POST {{baseUrl}}/api/v1/projectgroup/link?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "project_group": 1,
+  "project" : 1
+}

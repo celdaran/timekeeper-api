@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use OpenApi\Attributes as OA;
 
 use App\Dto\ProjectGroupCreateRequest;
+use App\Dto\ProjectGroupLinkRequest;
 use App\Service\ProjectGroupService;
 
 #[OA\Tag(name: 'Project Group Management')]
@@ -60,6 +61,13 @@ final class ProjectGroupController extends BaseController
     public function changeDescription(Request $request, int $id): JsonResponse
     {
         return $this->_patch($this->projectGroupService, 'description', $id, $request);
+    }
+
+    #[Route('/api/v1/projectgroup/link', name: 'projectgroup_link_project', methods: ['POST'])]
+    public function linkProjectGroup(#[MapRequestPayload] ProjectGroupLinkRequest $linkRequest): JsonResponse
+    {
+        $projectGroupProjectId = $this->projectGroupService->link($linkRequest);
+        return $this->json(ApiResponse::success(['project_group_project' => $projectGroupProjectId]));
     }
 
 }

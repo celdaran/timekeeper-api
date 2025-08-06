@@ -1,12 +1,12 @@
-INSERT INTO _schema (schema_id, schema_version, applied_by, status_id, applied_at)
+INSERT INTO _schema (schema_id, schema_version, commit_sha, applied_at, applied_by, status_id, created_at, modified_at, schema_descr)
 VALUES
-    (1, '5.0.0', 'hillsc', 1, '2025-06-09T05:49:00-05:00'),
-    (2, '5.0.1', 'hillsc', 1, '2025-06-09T22:52:00-05:00'),
-    (3, '5.1.0', 'hillsc', 1, '2025-07-24T01:34:00-05:00'),
-    (4, '5.2.0', 'hillsc', 1, '2025-07-24T12:45:00-05:00'),
-    (5, '5.3.0', 'hillsc', 1, '2025-07-26T01:26:16-05:00')
-    (6, '5.3.1', 'hillsc', 1, '2025-08-05T16:35:15-05:00')
-;
+    ( 1, '5.0.0', 'f1c1d16b777685ba2373ae80fcbec20a75417785', '2025-06-09T05:49:00-05:00', 'hillsc', '1', '2025-07-26T06:26:16-05:00', '2025-08-06T00:21:00-05:00', 'Initial schema for TK5'),
+    ( 2, '5.0.1', '4157f51b94d2425062a7346e8640e1009e57d0bf', '2025-06-09T22:52:00-05:00', 'hillsc', '1', '2025-07-26T06:26:16-05:00', '2025-08-06T00:21:00-05:00', 'Add ref_folder_type, fix bug with Tag root folder'),
+    ( 3, '5.1.0', '8b0f7010eb4a70a542cfe86e780490084ce25ada', '2025-07-24T01:34:00-05:00', 'hillsc', '1', '2025-07-26T06:26:16-05:00', '2025-08-06T00:21:00-05:00', 'Conversion from SQLite to MySQL, moved to different repo, full reassessment and cleanup of basically everything.'),
+    ( 4, '5.2.0', 'd8e6eea5b42d41654032adeb47c6265c93145141', '2025-07-24T12:45:00-05:00', 'hillsc', '1', '2025-07-26T06:26:16-05:00', '2025-08-06T00:21:00-05:00', 'Removed \"double ownership\" of entities, users is now accounts, journal.seconds is now journal.duration'),
+    ( 5, '5.3.0', '36d2663755adfb0defab9b38ed1e85bd12b51bee', '2025-07-26T01:26:16-05:00', 'hillsc', '1', '2025-08-06T04:55:57-05:00', '2025-08-06T00:21:00-05:00', 'Schema column type cleanup, split project_group'),
+    ( 6, '5.3.1', '5b63eb9eb2212904af354279b8469ee3e8489f6c', '2025-08-05T16:35:15-05:00', 'hillsc', '1', '2025-08-05T21:35:33-05:00', '2025-08-06T00:21:00-05:00', 'Remove location_id__last from project'),
+    ( 7, '5.3.2', '0000000000000000000000000000000000000000', '2025-08-06T00:21:00-05:00', 'hillsc', '1', '2025-08-06T00:21:00-05:00', '2025-08-06T00:21:00-05:00', 'Added hidden/deleted columns to project_group');
 
 INSERT INTO ref_date_preset (ref_date_preset_name)
 VALUES

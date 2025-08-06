@@ -3,6 +3,7 @@ Table "_schema" {
   "schema_id" INTEGER [pk, not null, increment]
   "schema_version" VARCHAR(31) [not null, unique]
   "schema_descr" VARCHAR(255) [not null]
+  "commit_sha" VARCHAR(40) [not null]
   "applied_at" DATETIME [not null, default: `current_timestamp`]
   "applied_by" VARCHAR(255) [not null]
   "status_id" INT [not null]
@@ -219,6 +220,10 @@ Table "project_group" {
   "project_group_name" VARCHAR(255) [not null]
   "project_group_descr" TEXT
   "account_id" INTEGER [not null]
+  "is_hidden" BOOLEAN [not null, default: false]
+  "is_deleted" BOOLEAN [not null, default: false]
+  "hidden_at" DATETIME
+  "deleted_at" DATETIME
   "created_at" DATETIME [not null, default: `current_timestamp`]
   "modified_at" DATETIME [not null, default: `current_timestamp`]
   Indexes {

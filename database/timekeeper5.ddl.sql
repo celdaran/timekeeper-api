@@ -2,6 +2,7 @@ CREATE TABLE `_schema` (
     `schema_id`      INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `schema_version` VARCHAR(31) UNIQUE  NOT NULL,
     `schema_descr`   VARCHAR(255)        NOT NULL,
+    `commit_sha`     VARCHAR(40)         NOT NULL,
     `applied_at`     DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
     `applied_by`     VARCHAR(255)        NOT NULL,
     `status_id`      INT                 NOT NULL,
@@ -174,6 +175,10 @@ CREATE TABLE `project_group` (
     `project_group_name`  VARCHAR(255)        NOT NULL,
     `project_group_descr` TEXT,
     `account_id`          INTEGER             NOT NULL,
+    `is_hidden`           BOOLEAN             NOT NULL DEFAULT FALSE,
+    `is_deleted`          BOOLEAN             NOT NULL DEFAULT FALSE,
+    `hidden_at`           DATETIME,
+    `deleted_at`          DATETIME,
     `created_at`          DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
     `modified_at`         DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );

@@ -1,0 +1,7 @@
+PATCH {{baseUrl}}/api/v1/projectgroup/1/name?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "value": "Renamed to {{$random.commerce.productName}}"
+}

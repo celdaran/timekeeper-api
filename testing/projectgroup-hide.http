@@ -1,0 +1,3 @@
+DELETE {{baseUrl}}/api/v1/projectgroup/1?hide=true&XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}

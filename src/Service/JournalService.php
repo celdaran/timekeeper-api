@@ -1,5 +1,6 @@
 <?php namespace App\Service;
 
+use DateTimeImmutable;
 use App\Dto\JournalCreateRequest;
 
 class JournalService extends BaseService
@@ -20,9 +21,17 @@ class JournalService extends BaseService
 
     public function create(JournalCreateRequest $journal): int
     {
+        // TODO: don't forget this needs a TON of data validation
+        // e.g., don't just accept "projectId = 1234" and insert it
+        // projects (and activities and locations (and tags)) all belong
+        // to folders and folders belong to profiles and profiles belong
+        // to accounts. So all of that has to be sorted out! For now,
+        // in my early prototyping, it's "anything goes."
+
         $row = [
             'start_time' => $journal->startTime,
             'stop_time' => $journal->stopTime,
+            'duration' => $this->getElapsedSeconds($journal->startTime, $journal->stopTime),
             'memo' => $journal->memo,
             'project_id' => $journal->project,
             'activity_id' => $journal->activity,
@@ -30,8 +39,6 @@ class JournalService extends BaseService
             'is_ignored' => $journal->ignored,
         ];
         return $this->db->insert('journal', $row);
-
-
     }
 
     public function fetch(int $id): array
@@ -62,6 +69,61 @@ class JournalService extends BaseService
     public function unhide(int $id): bool
     {
         return false;
+    }
+
+    public function import(string $uploadedFile, string $originalFileName, int $userId): bool
+    {
+        // Open file
+        $fileHandle = fopen($uploadedFile, 'r');
+
+        // Read lines
+        $i = 0;
+        while (($row = fgetcsv($fileHandle)) !== false) {
+            if ($i > 0) {
+                // First up: load up column values
+                $taskName = $row[0];
+                $taskDescription = $row[1];
+                $startTime = $row[2];
+                $stopTime = $row[3];
+                $duration = $row[4];
+                $durationInHours = $row[5];
+                $memo = $row[6];
+                $tag = $row[7];
+
+                // Next up: translate into whatever
+                $newJournalEntry = new JournalCreateRequest();
+                $newJournalEntry->startTime = $startTime;
+                $newJournalEntry->stopTime = $stopTime;
+                $newJournalEntry->memo = $memo;
+                $newJournalEntry->project = 1;
+                $newJournalEntry->activity = 1;
+                $newJournalEntry->location = 1;
+                $newJournalEntry->ignored = false;
+
+                // Save it
+                $this->create($newJournalEntry);
+            }
+            $i++;
+        }
+        fclose($fileHandle);
+
+        return true;
+    }
+
+    private function getElapsedSeconds(string $startTime, string $endTime): int
+    {
+        try {
+            // Create an immutable DateTime object from each string.
+            // PHP's DateTime classes natively handle the ISO 8601 format.
+            $start = new DateTimeImmutable($startTime);
+            $end = new DateTimeImmutable($endTime);
+
+            // Calculate the difference in seconds by subtracting the timestamps and return
+            return $end->getTimestamp() - $start->getTimestamp();
+        } catch (\Exception $e) {
+            // Handle invalid date strings gracefully.
+            return 0;
+        }
     }
 
 }

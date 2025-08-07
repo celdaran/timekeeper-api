@@ -21,17 +21,19 @@ class DatabaseService
         return $this->pdo;
     }
 
-    public function selectRow(string $table, string $pk, int $id, $columns = '*'): array
+    public function selectRow(string $table, string $columnName, mixed $value, string $columns = '*'): array
     {
-        $sql = "SELECT $columns FROM $table WHERE $pk = $id";
+        $sql = "SELECT $columns FROM $table WHERE $columnName = ?";
+
         $sth = $this->pdo->prepare($sql);
-        $sth->execute();
+        $sth->execute([$value]);
+
         $row = $sth->fetch(PDO::FETCH_ASSOC);
         if ($row === false) {
-            throw new NotFoundException("no row found in table $table where $pk = $id");
-        } else {
-            return $row;
+            throw new NotFoundException("no row found in table $table where $columnName = $value");
         }
+
+        return $row;
     }
 
     public function insert(string $table, array $row): int

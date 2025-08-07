@@ -53,8 +53,10 @@ Table "account" {
   "account_password" VARCHAR(255) [not null]
   "account_email" VARCHAR(320) [not null]
   "account_descr" TEXT
+  "token" VARCHAR(32)
   "project_id__last" INT
   "location_id__last" INT
+  "is_admin" BOOLEAN [not null, default: false]
   "is_hidden" BOOLEAN [not null, default: false]
   "is_deleted" BOOLEAN [not null, default: false]
   "hidden_at" DATETIME

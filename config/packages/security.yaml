@@ -4,19 +4,8 @@ security:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
 
     providers:
-        api_key_user_provider:
-            memory:
-                users:
-                    # Make sure these match the keys in ApiKeyAuthenticator::API_KEYS
-                    api_client: { roles: ['ROLE_API_CLIENT'] }
-                    api_admin: { roles: ['ROLE_API_CLIENT', 'ROLE_API_ADMIN'] }
-
-        # If you still have a database user provider for other parts of your app, keep it.
-        # For a pure API, you might only need api_key_user_provider.
-        # app_user_provider:
-        #     entity:
-        #         class: App\Entity\User
-        #         property: email
+        app_user_provider:
+            id: App\Security\ApiKeyUserProvider
 
     firewalls:
         dev:
@@ -27,7 +16,7 @@ security:
             pattern: ^/api # Crucial: This pattern must match your API paths
             stateless: true
             custom_authenticator: App\Security\ApiKeyAuthenticator
-            provider: api_key_user_provider # Ensure this points to the right provider
+            provider: app_user_provider # Ensure this points to the right provider
 
     access_control:
         # Allow anonymous access to the API documentation routes

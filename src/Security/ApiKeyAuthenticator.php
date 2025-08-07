@@ -1,7 +1,4 @@
-<?php
-// src/Security/ApiKeyAuthenticator.php
-
-namespace App\Security;
+<?php namespace App\Security;
 
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,36 +11,11 @@ use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 
+use App\Service\DatabaseService;
+
 class ApiKeyAuthenticator extends AbstractAuthenticator
 {
-    // No longer a hardcoded constant, injected via constructor
-    private array $apiKeys;
-
-    /**
-     * The constructor receives the API keys from services.yaml.
-     * Symfony's DI container automatically passes the values defined there.
-     *
-     * @param string $clientApiKeysString Comma-separated client API keys
-     * @param string $adminApiKeysString Comma-separated admin API keys
-     */
-    public function __construct(string $clientApiKeysString, string $adminApiKeysString)
-    {
-        // Parse the comma-separated strings into an associative array for easy lookup
-        // This structure maps the key to the username it represents.
-        $this->apiKeys = [];
-        foreach (explode(',', $clientApiKeysString) as $key) {
-            $key = trim($key);
-            if (!empty($key)) {
-                $this->apiKeys[$key] = 'api_client';
-            }
-        }
-        foreach (explode(',', $adminApiKeysString) as $key) {
-            $key = trim($key);
-            if (!empty($key)) {
-                $this->apiKeys[$key] = 'api_admin';
-            }
-        }
-    }
+    public function __construct(private readonly DatabaseService $databaseService) {}
 
     /**
      * Called on every request to decide if this authenticator should be used.
@@ -56,19 +28,37 @@ class ApiKeyAuthenticator extends AbstractAuthenticator
 
     public function authenticate(Request $request): Passport
     {
+        // Get key from header
         $apiKey = $request->headers->get('X-API-KEY');
 
+        // Cannot be blank
         if (null === $apiKey) {
             throw new CustomUserMessageAuthenticationException('No API token provided.');
         }
 
         // Look up the API key using the injected data
-        if (!isset($this->apiKeys[$apiKey])) {
+        // TODO: change to token column (we're just using account_descr until the next schema version is ready)
+        $account = $this->databaseService->selectRow('account', 'account_descr', $apiKey);
+        if (empty($account)) {
+            // Bail if account not found
+            // TODO: support token expiration at some point
             throw new CustomUserMessageAuthenticationException('Invalid API token.');
         }
 
-        $username = $this->apiKeys[$apiKey];
-        return new SelfValidatingPassport(new UserBadge($username));
+        // Use the actual username from the database.
+        // This is what the provider in security.yaml will use to look up the user.
+        $username = $account['account_username'];
+
+        // Get the roles from the account data, assuming you have a 'roles' column.
+        // If not, you can build the roles array dynamically.
+        // $roles = $account['is_admin'] ? ['ROLE_API_ADMIN'] : ['ROLE_API_CLIENT'];
+        $roles = ['ROLE_API_ADMIN', 'ROLE_API_CLIENT']; // TODO: just for now, give my "1" user both roles
+
+        // The UserBadge will now be able to retrieve the full User object
+        // from the database using the username.
+        return new SelfValidatingPassport(new UserBadge($username, function(string $userIdentifier) use ($roles) {
+            return new ApiKeyUser($userIdentifier, $roles);
+        }));
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

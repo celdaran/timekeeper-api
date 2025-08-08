@@ -56,6 +56,7 @@ CREATE TABLE `account` (
     `is_deleted`        BOOLEAN             NOT NULL DEFAULT FALSE,
     `hidden_at`         DATETIME,
     `deleted_at`        DATETIME,
+    `login_at`          DATETIME,
     `created_at`        DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
     `modified_at`       DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
@@ -155,6 +156,7 @@ CREATE TABLE `journal` (
     `stop_time`     DATETIME            NOT NULL,
     `duration`      INTEGER             NOT NULL,
     `memo`          TEXT,
+    `profile_id`    INTEGER             NOT NULL,
     `project_id`    INTEGER             NOT NULL,
     `activity_id`   INTEGER             NOT NULL,
     `location_id`   INTEGER             NOT NULL,
@@ -220,6 +222,8 @@ CREATE INDEX `idx_tag_folder_id` ON `tag` (`folder_id`);
 
 CREATE UNIQUE INDEX `idx_tag_name` ON `tag` (`folder_id`, `tag_name`);
 
+CREATE INDEX `idx_journal_profile_id` ON `journal` (`profile_id`);
+
 CREATE INDEX `idx_journal_project_id` ON `journal` (`project_id`);
 
 CREATE INDEX `idx_journal_activity_id` ON `journal` (`activity_id`);
@@ -262,6 +266,9 @@ ALTER TABLE `account`
 
 ALTER TABLE `tag`
     ADD FOREIGN KEY (`folder_id`) REFERENCES `folder` (`folder_id`);
+
+ALTER TABLE `journal`
+    ADD FOREIGN KEY (`profile_id`) REFERENCES `profile` (`profile_id`);
 
 ALTER TABLE `journal`
     ADD FOREIGN KEY (`project_id`) REFERENCES `project` (`project_id`);

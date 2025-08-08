@@ -7,7 +7,8 @@ VALUES
     ( 5, '5.3.0', '36d2663755adfb0defab9b38ed1e85bd12b51bee', '2025-07-26T01:26:16-05:00', 'hillsc', '1', '2025-08-06T04:55:57-05:00', '2025-08-06T00:21:00-05:00', 'Clean data types in schema, split `project_group` into two tables'),
     ( 6, '5.3.1', '5b63eb9eb2212904af354279b8469ee3e8489f6c', '2025-08-05T16:35:15-05:00', 'hillsc', '1', '2025-08-05T21:35:33-05:00', '2025-08-06T00:21:00-05:00', 'Remove `location_id__last` from `project`'),
     ( 7, '5.3.2', '80155815086128636ef477538fa41c382fd316d2', '2025-08-06T00:21:00-05:00', 'hillsc', '1', '2025-08-06T00:21:00-05:00', '2025-08-06T00:21:00-05:00', 'Add hidden/deleted columns to project_group'),
-    ( 8, '5.3.3', '0000000000000000000000000000000000000000', '2025-08-07T15:03:00-05:00', 'hillsc', '1', '2025-08-07T15:03:00-05:00', '2025-08-07T15:03:00-05:00', 'Add `token` and `is_admin` to `account` to go along with new authentication model (see commit 21e0e5be09610449f7140dafc8d9f26881c02ba6)')
+    ( 8, '5.3.3', '133e4ab32c897ed355f1d2457027368d872727e4', '2025-08-07T15:03:00-05:00', 'hillsc', '1', '2025-08-07T15:03:00-05:00', '2025-08-07T15:03:00-05:00', 'Add `token` and `is_admin` to `account` to go along with new authentication model (see commit 21e0e5be09610449f7140dafc8d9f26881c02ba6)'),
+    ( 9, '5.3.4', '0000000000000000000000000000000000000000', '2025-08-08T15:53:00-05:00', 'hillsc', '1', '2025-08-08T15:53:00-05:00', '2025-08-08T15:53:00-05:00', 'Add `login_at` to `account` and add `profile_id` back to `journal`')
 ;
 
 INSERT INTO ref_date_preset (ref_date_preset_name)

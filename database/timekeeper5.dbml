@@ -61,6 +61,7 @@ Table "account" {
   "is_deleted" BOOLEAN [not null, default: false]
   "hidden_at" DATETIME
   "deleted_at" DATETIME
+  "login_at" DATETIME
   "created_at" DATETIME [not null, default: `current_timestamp`]
   "modified_at" DATETIME [not null, default: `current_timestamp`]
 
@@ -194,6 +195,7 @@ Table "journal" {
   "stop_time" DATETIME [not null]
   "duration" INTEGER [not null]
   "memo" TEXT
+  "profile_id" INTEGER [not null]
   "project_id" INTEGER [not null]
   "activity_id" INTEGER [not null]
   "location_id" INTEGER [not null]
@@ -204,6 +206,7 @@ Table "journal" {
   "modified_at" DATETIME [not null, default: `current_timestamp`]
 
   Indexes {
+    profile_id [name: "idx_journal_profile_id"]
     project_id [name: "idx_journal_project_id"]
     activity_id [name: "idx_journal_activity_id"]
     location_id [name: "idx_journal_location_id"]
@@ -265,6 +268,8 @@ Ref:"activity"."activity_id" < "project"."activity_id__last"
 Ref:"location"."location_id" < "account"."location_id__last"
 
 Ref:"folder"."folder_id" < "tag"."folder_id"
+
+Ref:"profile"."profile_id" < "journal"."profile_id"
 
 Ref:"project"."project_id" < "journal"."project_id"
 

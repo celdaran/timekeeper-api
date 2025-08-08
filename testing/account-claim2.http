@@ -1,0 +1,10 @@
+PUT {{baseUrl}}/api/v1/account/2?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+X-API-KEY: {{adminToken}}
+
+{
+  "username": "noon",
+  "password": "this is my other password",
+  "email": "noon@tmx.email",
+  "admin": 0
+}

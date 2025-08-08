@@ -36,29 +36,28 @@ class ApiKeyAuthenticator extends AbstractAuthenticator
             throw new CustomUserMessageAuthenticationException('No API token provided.');
         }
 
-        // Look up the API key using the injected data
-        // TODO: change to token column (we're just using account_descr until the next schema version is ready)
-        $account = $this->databaseService->selectRow('account', 'account_descr', $apiKey);
+        // Look up the API key
+        $account = $this->databaseService->selectRow('account', 'token', $apiKey);
         if (empty($account)) {
-            // Bail if account not found
             // TODO: support token expiration at some point
             throw new CustomUserMessageAuthenticationException('Invalid API token.');
         }
 
-        // Use the actual username from the database.
-        // This is what the provider in security.yaml will use to look up the user.
-        $username = $account['account_username'];
+        // Save various account attributes
+        $accountId = $account['account_id'];
+        $accountUsername = $account['account_username'];  // This is Symfony's unique user key
+        $accountDescr = $account['account_descr'];
+        $accountEmail = $account['account_email'];
+        $accountIsAdmin = $account['is_admin'];
 
-        // Get the roles from the account data, assuming you have a 'roles' column.
-        // If not, you can build the roles array dynamically.
-        // $roles = $account['is_admin'] ? ['ROLE_API_ADMIN'] : ['ROLE_API_CLIENT'];
-        $roles = ['ROLE_API_ADMIN', 'ROLE_API_CLIENT']; // TODO: just for now, give my "1" user both roles
-
-        // The UserBadge will now be able to retrieve the full User object
-        // from the database using the username.
-        return new SelfValidatingPassport(new UserBadge($username, function(string $userIdentifier) use ($roles) {
-            return new ApiKeyUser($userIdentifier, $roles);
-        }));
+        // Create passport: the closure here instantiates the ApiKeyUser object which we can fetch later
+        return new SelfValidatingPassport(
+            new UserBadge($accountUsername,
+                function(string $userIdentifier) use ($accountId, $accountDescr, $accountEmail, $accountIsAdmin) {
+                    return new ApiKeyUser($accountId, $userIdentifier, $accountDescr, $accountEmail, $accountIsAdmin);
+                }
+            )
+        );
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

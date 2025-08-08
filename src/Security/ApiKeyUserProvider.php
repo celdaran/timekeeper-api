@@ -3,31 +3,28 @@
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+
 use App\Service\DatabaseService;
-use App\Security\ApiKeyUser;
 
 class ApiKeyUserProvider implements UserProviderInterface
 {
-    private DatabaseService $databaseService;
-
-    public function __construct(DatabaseService $databaseService)
-    {
-        $this->databaseService = $databaseService;
-    }
+    public function __construct(private readonly DatabaseService $databaseService) {}
 
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
-        // This is where you would look up the user in your database using PDO.
-        // The $identifier here is the username.
-        $user = $this->databaseService->selectRow('account', 'account_username', $identifier);
+        $account = $this->databaseService->selectRow('account', 'account_username', $identifier);
 
-        if (!$user) {
-            throw new \Exception('User not found.'); // or some other custom exception
+        if (!$account) {
+            throw new \Exception('Account not found.');
         }
 
-        // This method needs to return an object that implements UserInterface.
-        // We'll create this class next.
-        return new ApiKeyUser($user['username'], $user['roles']);
+        return new ApiKeyUser(
+            $account['account_id'],
+            $account['account_username'],
+            $account['account_email'],
+            $account['account_descr'],
+            $account['is_admin'],
+        );
     }
 
     public function refreshUser(UserInterface $user): UserInterface

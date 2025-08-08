@@ -1,33 +1,34 @@
 <?php namespace App\Service;
 
+use App\Security\ApiKeyUser;
 use Ramsey\Uuid\Uuid;
+use Symfony\Bundle\SecurityBundle\Security;
 
 class LoginService
 {
-    private DatabaseService $databaseService;
-
-    public function __construct(DatabaseService $databaseService)
+    public function __construct(private readonly DatabaseService $databaseService)
     {
-        $this->databaseService = $databaseService;
     }
 
     public function login(string $username, string $password): ?string
     {
-        $user = $this->databaseService->selectRow('account', 'account_username', $username);
+        // Fetch account from database
+        $account = $this->databaseService->selectRow('account', 'account_username', $username);
 
-        $storedPassword = $user['account_password'];
-
-        if (password_verify($password, $storedPassword)) {
-            // We're authenticated: generate access token
+        // Verify password
+        if (password_verify($password, $account['account_password'])) {
+            // If verified, generate a token
             $token = Uuid::uuid4()->toString();
-            // Store with account
-            $row['account_descr'] = $token;
-            $this->databaseService->update('account', $row, 'account_id', 1);
-            // Return to caller
+
+            // Store token with account
+            $row['token'] = $token;
+            $this->databaseService->update('account', $row, 'account_username', $username);
+
+            // Return token to caller
             return $token;
-        } else {
-            return null;
         }
+
+        return null;
     }
 
 }

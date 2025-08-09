@@ -2,6 +2,7 @@
 
 use DateTimeImmutable;
 use App\Dto\JournalCreateRequest;
+use App\Exception\NotFoundException;
 
 class JournalService extends BaseService
 {
@@ -82,6 +83,23 @@ class JournalService extends BaseService
         return false;
     }
 
+    /**
+     * Import a CSV file
+     *
+     * This is *not* a generic import, it's 100% geared towards reading the
+     * ATracker CSV file. Further, it's *my* version of that file, where I
+     * use ATracker's "task" (i.e., a project) as a track. And what TK calls
+     * projects, activities, locations, and tags are all ATracker tags. It's
+     * working for me, but barely. It's definitely not sustainable. For now
+     * this import is designed to get me past this hurdle. Long term, this
+     * will become a canonical TK5 importer. And the ATracker export will
+     * have to go through an adapter before going into TK.
+     *
+     * @param string $uploadedFile
+     * @param string $originalFileName
+     * @param int $profileId
+     * @return int
+     */
     public function import(string $uploadedFile, string $originalFileName, int $profileId): int
     {
         // Open file
@@ -92,14 +110,16 @@ class JournalService extends BaseService
         while (($row = fgetcsv($fileHandle)) !== false) {
             if ($i > 0) {
                 // First up: load up column values
-                $taskName = $row[0];
-                $taskDescription = $row[1];
-                $startTime = $row[2];
-                $stopTime = $row[3];
-                $duration = $row[4];
-                $durationInHours = $row[5];
-                $memo = $row[6];
-                $tag = $row[7];
+                $taskName = $row[0];        // Task name is a "Track"
+                $taskDescription = $row[1]; // Unused
+                $startTime = $row[2];       // Start time
+                $stopTime = $row[3];        // End time
+                $duration = $row[4];        // Unused (we recalculate in the import)
+                $durationInHours = $row[5]; // Unused
+                $memo = $row[6];            // Newlines are stripped  :(
+                $tag = $row[7];             // This needs to be parsed
+
+                $tagParser = new JournalImportParserService($tag);
 
                 // Next up: translate into whatever
                 $newJournalEntry = new JournalCreateRequest();
@@ -107,9 +127,10 @@ class JournalService extends BaseService
                 $newJournalEntry->startTime = $startTime;
                 $newJournalEntry->stopTime = $stopTime;
                 $newJournalEntry->memo = $memo;
-                $newJournalEntry->project = 1;
-                $newJournalEntry->activity = 1;
-                $newJournalEntry->location = 1;
+                $newJournalEntry->project = $this->_extractProject($tagParser);
+                $newJournalEntry->activity = $this->_extractActivity($tagParser);
+                $newJournalEntry->location = $this->_extractLocation($tagParser);
+                $newJournalEntry->tags = [$this->_extractTag($tagParser)];
                 $newJournalEntry->ignored = false;
 
                 // Save it
@@ -136,6 +157,55 @@ class JournalService extends BaseService
             // Handle invalid date strings gracefully.
             return 0;
         }
+    }
+
+    // Tag - Default | Location - Home | Project - AFK | Activity - General:Participating
+
+    private function _extractProject(JournalImportParserService $p): int
+    {
+        $projectName = $p->extractProject();
+        try {
+            $project = $this->db->selectRow('project', 'project_name', $projectName, 'project_id');
+            return $project['project_id'];
+        }
+        catch (NotFoundException $e) {
+            // If project wasn't found, create it
+            // NOTE: this treats all projects as flat
+            // So . . . never mind. I shouldn't even do this until I can actually do it
+            // For example, if "Project" is "Track:Software:Timekeeper" then this means:
+            // 1. Find or create folder "Track"
+            // 2. Find or create folder "Software"
+            // 3. Find or create project "Timekeeper"
+            // ---ORRRRRR--- and this is probably better (as a hack)
+            // A straight-up lookup table. Two columns:
+            // column A: "The ATracker Project Name"
+            // column B: "The Timekeeper project ID"
+            // This means autovivification is out: I'd have to predefine these
+            // So there's that upfront pain, but it gives me total control
+            // and I can also do many-to-one mapping
+            return 0;
+        }
+        catch (\Exception $e) {
+            return 0;
+        }
+    }
+
+    private function _extractActivity(JournalImportParserService $p): int
+    {
+        $activityName = $p->extractActivity();
+        return 2;
+    }
+
+    private function _extractLocation(JournalImportParserService $p): int
+    {
+        $locationName = $p->extractLocation();
+        return 3;
+    }
+
+    private function _extractTag(JournalImportParserService $p): int
+    {
+        $tagName = $p->extractTag();
+        return 1;
     }
 
 }

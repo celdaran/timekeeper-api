@@ -62,8 +62,8 @@ class ApiKeyAuthenticator extends AbstractAuthenticator
         // Create passport: the closure here instantiates the ApiKeyUser object which we can fetch later
         return new SelfValidatingPassport(
             new UserBadge($accountUsername,
-                function(string $userIdentifier) use ($accountId, $accountDescr, $accountEmail, $accountIsAdmin) {
-                    return new ApiKeyUser($accountId, $userIdentifier, $accountDescr, $accountEmail, $accountIsAdmin);
+                function(string $userIdentifier) use ($accountId, $accountEmail, $accountDescr, $accountIsAdmin) {
+                    return new ApiKeyUser($accountId, $userIdentifier, $accountEmail, $accountDescr, $accountIsAdmin);
                 }
             )
         );

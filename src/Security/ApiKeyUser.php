@@ -54,7 +54,7 @@ class ApiKeyUser implements UserInterface
         return $this->accountDescr;
     }
 
-    public function getIsAdmin(): bool
+    public function isAdmin(): bool
     {
         return $this->isAdmin;
     }

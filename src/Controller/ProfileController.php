@@ -4,35 +4,46 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 use OpenApi\Attributes as OA;
 
 use App\Dto\ProfileCreateRequest;
 use App\Service\ProfileService;
+use App\Service\PermissionService;
 
 #[OA\Tag(name: 'Profile Management')]
 final class ProfileController extends BaseController
 {
-    private ProfileService $profileService;
-
-    public function __construct(ProfileService $profileService) {
-        $this->profileService = $profileService;
+    public function __construct(
+        private readonly ProfileService $profileService,
+        private readonly PermissionService $perm)
+    {
     }
 
     #[Route('/api/v1/profile', name: 'profile_create', methods: ['POST'])]
     public function create(#[MapRequestPayload] ProfileCreateRequest $profile): JsonResponse
     {
-        $profileId = $this->profileService->create($profile);
-        return $this->json(ApiResponse::created(['profile' => $profileId]));
+        if ($this->perm->canAccessProfileForAccount($profile->account)) {
+            $profileId = $this->profileService->create($profile);
+            return $this->json(ApiResponse::created(['profile' => $profileId]));
+        } else {
+            return $this->json(ApiResponse::error(['error' => 'Permission denied']), 403);
+        }
     }
 
     #[Route('/api/v1/profile/{id}', name: 'profile_fetch', methods: ['GET'])]
-    public function fetch(Request $request, int $id): JsonResponse
+    public function fetch(#[MapRequestPayload] ProfileCreateRequest $profile, int $id): JsonResponse
     {
-        return $this->_fetch($this->profileService, $id, 'profile');
+        if ($this->perm->canAccessProfileForAccount($profile->account)) {
+            return $this->_fetch($this->profileService, $id, 'profile');
+        } else {
+            return $this->json(ApiResponse::error(['error' => 'Permission denied']), 403);
+        }
     }
 
     #[Route('/api/v1/profile/{id}', name: 'profile_update', methods: ['PUT'])]
+    #[IsGranted('ROLE_ADMIN')]
     public function update(Request $request, int $id): JsonResponse
     {
         return $this->_update($this->profileService, $id, $request);

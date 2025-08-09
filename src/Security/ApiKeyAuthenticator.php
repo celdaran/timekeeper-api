@@ -38,9 +38,18 @@ class ApiKeyAuthenticator extends AbstractAuthenticator
 
         // Look up the API key
         $account = $this->databaseService->selectRow('account', 'token', $apiKey);
+
         if (empty($account)) {
             // TODO: support token expiration at some point
-            throw new CustomUserMessageAuthenticationException('Invalid API token.');
+            throw new CustomUserMessageAuthenticationException('Invalid API token. User must log in again...');
+        }
+
+        if ($account['is_hidden']) {
+            throw new CustomUserMessageAuthenticationException('Account has been hidden.');
+        }
+
+        if ($account['is_deleted']) {
+            throw new CustomUserMessageAuthenticationException('Account has been deleted.');
         }
 
         // Save various account attributes

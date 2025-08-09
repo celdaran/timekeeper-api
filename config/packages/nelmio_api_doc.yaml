@@ -7,9 +7,10 @@ nelmio_api_doc:
         servers:
             - url: http://localhost:8000/
               description: Local Development Server
-            - url: https://api.technitivity.com/public/index.php/
+            - url: https://api.technitivity.com/timekeeper/public/index.php/
               description: Production Server
     areas:
         path_patterns:
             # Accepts routes under /api except /api/doc
+            - ^/login$
             - ^/api(?!/doc$)

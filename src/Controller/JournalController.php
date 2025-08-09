@@ -39,8 +39,8 @@ final class JournalController extends BaseController
         return $this->_update($this->journalService, $id, $request);
     }
 
-    #[Route('/api/v1/journal/import', name: 'journal_import', methods: ['POST'])]
-    public function import(Request $request): JsonResponse
+    #[Route('/api/v1/journal/import/{profileId}', name: 'journal_import', methods: ['POST'])]
+    public function import(Request $request, int $profileId): JsonResponse
     {
         /** @var UploadedFile|null $uploadedFile */
         $uploadedFile = $request->files->get('data');
@@ -51,24 +51,14 @@ final class JournalController extends BaseController
 
         $temporaryPath = $uploadedFile->getRealPath();
         $originalFilename = $uploadedFile->getClientOriginalName();
-        $userId = 1;
 
-        $result = $this->journalService->import($temporaryPath, $originalFilename, $userId);
+        $rowCount = $this->journalService->import($temporaryPath, $originalFilename, $profileId);
 
-        if ($result) {
-            return $this->json(ApiResponse::success(['journal' => $result]));
+        if ($rowCount) {
+            return $this->json(ApiResponse::success(['import' => "successfully imported $rowCount rows"]));
         } else {
             return $this->json(ApiResponse::error(['error' => 'Could not import']));
         }
-
-        $message = sprintf(
-            'File "%s" (temporary path: %s) received for user ID "%s".',
-            $originalFilename,
-            $temporaryPath,
-            $userId
-        );
-
-        return new Response($message);
     }
 
 }

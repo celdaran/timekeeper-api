@@ -9,6 +9,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 )]
 class JournalCreateRequest
 {
+    #[OA\Property(description: 'The Profile ID for the new Journal entry', example: '1')]
+    #[Assert\NotBlank(message: 'Profile cannot be blank.')]
+    public int $profile;
+
     #[OA\Property(description: 'The start time of the Journal entry in ISO-8601 format', example: 'YYYY-MM-DDThh:mm:ss±HH:MM')]
     #[Assert\NotBlank(message: 'Start time cannot be blank.')]
     #[Assert\Length(min: 25, max: 25, minMessage: 'Start time must be in the following format: YYYY-MM-DDThh:mm:ss±HH:MM')]

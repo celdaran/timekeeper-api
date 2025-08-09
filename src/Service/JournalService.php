@@ -29,6 +29,7 @@ class JournalService extends BaseService
         // in my early prototyping, it's "anything goes."
 
         $row = [
+            'profile_id' => $journal->profile,
             'start_time' => $journal->startTime,
             'stop_time' => $journal->stopTime,
             'duration' => $this->getElapsedSeconds($journal->startTime, $journal->stopTime),
@@ -71,7 +72,7 @@ class JournalService extends BaseService
         return false;
     }
 
-    public function import(string $uploadedFile, string $originalFileName, int $userId): bool
+    public function import(string $uploadedFile, string $originalFileName, int $profileId): int
     {
         // Open file
         $fileHandle = fopen($uploadedFile, 'r');
@@ -92,6 +93,7 @@ class JournalService extends BaseService
 
                 // Next up: translate into whatever
                 $newJournalEntry = new JournalCreateRequest();
+                $newJournalEntry->profile = $profileId;
                 $newJournalEntry->startTime = $startTime;
                 $newJournalEntry->stopTime = $stopTime;
                 $newJournalEntry->memo = $memo;
@@ -107,7 +109,7 @@ class JournalService extends BaseService
         }
         fclose($fileHandle);
 
-        return true;
+        return $i;
     }
 
     private function getElapsedSeconds(string $startTime, string $endTime): int

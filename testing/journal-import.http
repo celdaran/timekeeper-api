@@ -1,0 +1,21 @@
+### Send a form with the text and file fields
+POST {{baseUrl}}/api/v1/journal/import/2?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+X-API-KEY: {{adminToken}}
+
+--WebAppBoundary
+Content-Disposition: form-data; name="first-element-name"
+Content-Type: text/plain
+
+First Element Value
+--WebAppBoundary
+Content-Disposition: form-data; name="second-element-name"
+Content-Type: text/plain
+
+Second Element Value
+--WebAppBoundary
+Content-Disposition: form-data; name="data"; filename="ATracker_Piechart_20250701_20250731.csv"
+Content-Type: text/csv
+
+< /Users/hillsc/Downloads/ATracker_Piechart_20250701_20250731.csv
+--WebAppBoundary--

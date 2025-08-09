@@ -1,7 +1,6 @@
 <?php namespace App\Service;
 
 use App\Dto\FolderCreateRequest;
-use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 
 class FolderService extends BaseService
 {
@@ -20,7 +19,7 @@ class FolderService extends BaseService
         ];
     }
 
-    public function create(#[MapRequestPayload] FolderCreateRequest $folder): int
+    public function create(FolderCreateRequest $folder): int
     {
         $row = [
             'folder_name' => $folder->name,

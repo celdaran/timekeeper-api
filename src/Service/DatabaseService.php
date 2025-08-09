@@ -16,11 +16,6 @@ class DatabaseService
         ]);
     }
 
-    public function getConnection(): PDO
-    {
-        return $this->pdo;
-    }
-
     public function selectRow(string $table, string $columnName, mixed $value, string $columns = '*'): array
     {
         $sql = "SELECT $columns FROM $table WHERE $columnName = ?";
@@ -55,9 +50,9 @@ class DatabaseService
         return $this->pdo->lastInsertId();
     }
 
-    public function update(string $table, array $row, string $pk, int $id): bool
+    public function update(string $table, array $row, string $columnName, mixed $value): bool
     {
-        $update = $this->buildUpdateStatement($table, $row, $pk, $id);
+        $update = $this->buildUpdateStatement($table, $row, $columnName, $value);
         $sth = $this->pdo->prepare($update['sql']);
         $sth->execute($update['params']);
         $count = $sth->rowCount();

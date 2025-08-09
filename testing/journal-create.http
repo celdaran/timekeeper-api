@@ -3,11 +3,13 @@ Content-Type: application/json
 X-API-KEY: {{adminToken}}
 
 {
+  "profile": 3,
   "startTime": "2025-08-01T01:41:25-05:00",
   "stopTime": "2025-08-01T02:35:51-05:00",
   "memo": "{{$random.lorem.paragraph}}",
   "project": 1,
   "activity": 1,
   "location": 1,
-  "ignored": false
+  "ignored": false,
+  "tags": [1,2,3]
 }

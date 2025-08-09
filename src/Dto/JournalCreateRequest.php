@@ -38,6 +38,9 @@ class JournalCreateRequest
     #[Assert\NotBlank(message: 'Location cannot be blank.')]
     public int $location;
 
+    #[OA\Property(description: 'An array of IDs representing tags', example: '[1,2,3]')]
+    public array $tags = [];
+
     #[OA\Property(description: 'A flag to ignore the journal entry from reporting', example: 'false')]
     public bool $ignored = false;
 }

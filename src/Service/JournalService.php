@@ -39,7 +39,17 @@ class JournalService extends BaseService
             'location_id' => $journal->location,
             'is_ignored' => $journal->ignored,
         ];
-        return $this->db->insert('journal', $row);
+        $journalId = $this->db->insert('journal', $row);
+
+        foreach ($journal->tags as $tag) {
+            $row = [
+                'journal_id' => $journalId,
+                'tag_id' => $tag,
+            ];
+            $this->db->insert('journal_tag', $row);
+        }
+
+        return $journalId;
     }
 
     public function fetch(int $id): array

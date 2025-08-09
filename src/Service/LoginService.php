@@ -22,6 +22,7 @@ class LoginService
 
             // Store token with account
             $row['token'] = $token;
+            $row['login_at'] = date('Y-m-d H:i:s');
             $this->databaseService->update('account', $row, 'account_username', $username);
 
             // Return token to caller

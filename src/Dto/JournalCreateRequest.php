@@ -43,4 +43,8 @@ class JournalCreateRequest
 
     #[OA\Property(description: 'A flag to ignore the journal entry from reporting', example: 'false')]
     public bool $ignored = false;
+
+    #[OA\Property(description: 'A flag to indicate the entry has been reconciled', example: 'false')]
+    public bool $reconciled = false;
+
 }

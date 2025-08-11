@@ -1,6 +1,6 @@
-PUT {{baseUrl}}/api/v1/account/1?XDEBUG_SESSION_START=PHPSTORM
+PUT {{baseUrl}}/api/v1/account/2?XDEBUG_SESSION_START=PHPSTORM
 Content-Type: application/json
-X-API-KEY: {{adminToken}}
+X-API-KEY: {{tokenAccount1}}
 
 {
   "username": "{{$random.name.lastName}}{{$random.integer(1000,9999)}}",

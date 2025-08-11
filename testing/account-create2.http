@@ -1,4 +1,4 @@
-PUT {{baseUrl}}/api/v1/account/2?XDEBUG_SESSION_START=PHPSTORM
+POST {{baseUrl}}/api/v1/account?XDEBUG_SESSION_START=PHPSTORM
 Content-Type: application/json
 X-API-KEY: {{tokenAccount1}}
 
@@ -6,5 +6,5 @@ X-API-KEY: {{tokenAccount1}}
   "username": "{{usernameAccount2}}",
   "password": "{{passwordAccount2}}",
   "email": "{{emailAccount2}}",
-  "admin": 1
+  "admin": true
 }

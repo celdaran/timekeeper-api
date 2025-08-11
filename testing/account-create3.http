@@ -3,7 +3,7 @@ Content-Type: application/json
 X-API-KEY: {{tokenAccount1}}
 
 {
-  "username": "a",
-  "password": "{{$random.alphanumeric(16)}}",
-  "email": "{{$random.email}}"
+  "username": "{{usernameAccount3}}",
+  "password": "{{passwordAccount3}}",
+  "email": "{{emailAccount3}}"
 }

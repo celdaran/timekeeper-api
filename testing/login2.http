@@ -1,0 +1,7 @@
+POST {{baseUrl}}/login?XDEBUG_SESSION_START=PHPSTORM
+Content-Type: application/json
+
+{
+  "username": "{{usernameAccount2}}",
+  "password": "{{passwordAccount2}}"
+}

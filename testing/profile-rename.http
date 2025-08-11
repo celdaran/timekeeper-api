@@ -1,6 +1,6 @@
-PATCH {{baseUrl}}/api/v1/profile/1/name?XDEBUG_SESSION_START=PHPSTORM
+PATCH {{baseUrl}}/api/v1/profile/2/name?XDEBUG_SESSION_START=PHPSTORM
 Content-Type: application/json
-X-API-KEY: {{adminToken}}
+X-API-KEY: {{tokenAccount1}}
 
 {
   "value": "Renamed to {{$random.beer.name}}"

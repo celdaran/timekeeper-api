@@ -2,6 +2,6 @@ POST {{baseUrl}}/login?XDEBUG_SESSION_START=PHPSTORM
 Content-Type: application/json
 
 {
-  "username": "midnight",
-  "password": "this is my third password"
+  "username": "{{usernameAccount3}}",
+  "password": "{{passwordAccount3}}"
 }

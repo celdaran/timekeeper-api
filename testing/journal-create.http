@@ -1,6 +1,6 @@
 POST {{baseUrl}}/api/v1/journal?XDEBUG_SESSION_START=PHPSTORM
 Content-Type: application/json
-X-API-KEY: {{adminToken}}
+X-API-KEY: {{tokenAccount1}}
 
 {
   "profile": 3,

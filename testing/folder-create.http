@@ -1,10 +1,10 @@
 POST {{baseUrl}}/api/v1/folder?XDEBUG_SESSION_START=PHPSTORM
 Content-Type: application/json
-X-API-KEY: {{adminToken}}
+X-API-KEY: {{tokenAccount1}}
 
 {
   "name": "{{$random.company.name}}",
   "description": "My next book project",
   "profile": 2,
-  "parent": null
+  "parent": 2
 }

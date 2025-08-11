@@ -24,17 +24,3 @@ ALTER TABLE `ref_time_display`      MODIFY COLUMN `modified_at` DATETIME NOT NUL
 
 -- Step 3: Re-enable foreign key checks
 SET FOREIGN_KEY_CHECKS = 1;
-
--- -----------------------------------------------
--- Create unique constraints on folder hierarchy
--- -----------------------------------------------
-
-ALTER TABLE folder
-    ADD folder_id__parent_normalized INT GENERATED ALWAYS AS (
-        IFNULL(folder_id__parent, 0)
-        ) STORED
-;
-
-CREATE UNIQUE INDEX `idx_folder_name`
-    ON folder (folder_name, folder_id__parent_normalized, profile_id)
-;

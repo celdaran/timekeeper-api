@@ -53,7 +53,7 @@ Table "account" {
   "account_password" VARCHAR(255) [not null]
   "account_email" VARCHAR(320) [not null]
   "account_descr" TEXT
-  "token" VARCHAR(32)
+  "token" VARCHAR(36)
   "project_id__last" INT
   "location_id__last" INT
   "is_admin" BOOLEAN [not null, default: false]
@@ -93,8 +93,9 @@ Table "folder" {
   "folder_name" VARCHAR(255) [not null]
   "folder_descr" TEXT
   "profile_id" INTEGER [not null]
-  "folder_id__parent" INTEGER
+  "folder_id__parent" INTEGER [not null]
   "sort_order" INTEGER [not null, default: 0]
+  "is_system" BOOLEAN [not null, default: false]
   "is_open" BOOLEAN [not null, default: true]
   "is_hidden" BOOLEAN [not null, default: false]
   "is_deleted" BOOLEAN [not null, default: false]
@@ -106,6 +107,7 @@ Table "folder" {
   Indexes {
     profile_id [name: "idx_folder_profile_id"]
     folder_id__parent [name: "idx_folder_parent_id"]
+    (folder_name, folder_id__parent, profile_id) [unique, name: "idx_folder_name"]
   }
 }
 
@@ -246,6 +248,13 @@ Table "project_group_project" {
   }
 }
 
+Table "import_log" {
+  "import_id" INTEGER [pk, not null, increment]
+  "original_file_name" TEXT
+  "row_count" INTEGER
+  "succeeded" BOOLEAN [not null, default: false]
+  "imported_at" DATETIME [not null, default: `current_timestamp`]
+}
 
 Ref:"account"."account_id" < "profile"."account_id"
 

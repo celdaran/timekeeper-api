@@ -25,6 +25,9 @@ class AccountCreateRequest
     #[Assert\Length(min: 3, max: 320, minMessage: 'Email address must be at least {{ limit }} characters long.')]
     public string $email;
 
+    #[OA\Property(description: 'An flag indicating whether this is an admin account')]
+    public bool $admin = false;
+
     #[OA\Property(description: 'An optional description for the Account (useful if you have more than one)', nullable: true)]
     public ?string $description = null;
 }

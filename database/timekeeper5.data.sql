@@ -8,7 +8,8 @@ VALUES
     ( 6, '5.3.1', '5b63eb9eb2212904af354279b8469ee3e8489f6c', '2025-08-05T16:35:15-05:00', 'hillsc', '1', '2025-08-05T21:35:33-05:00', '2025-08-06T00:21:00-05:00', 'Remove `location_id__last` from `project`'),
     ( 7, '5.3.2', '80155815086128636ef477538fa41c382fd316d2', '2025-08-06T00:21:00-05:00', 'hillsc', '1', '2025-08-06T00:21:00-05:00', '2025-08-06T00:21:00-05:00', 'Add hidden/deleted columns to project_group'),
     ( 8, '5.3.3', '133e4ab32c897ed355f1d2457027368d872727e4', '2025-08-07T15:03:00-05:00', 'hillsc', '1', '2025-08-07T15:03:00-05:00', '2025-08-07T15:03:00-05:00', 'Add `token` and `is_admin` to `account` to go along with new authentication model (see commit 21e0e5be09610449f7140dafc8d9f26881c02ba6)'),
-    ( 9, '5.3.4', '0000000000000000000000000000000000000000', '2025-08-08T15:53:00-05:00', 'hillsc', '1', '2025-08-08T15:53:00-05:00', '2025-08-08T15:53:00-05:00', 'Add `login_at` to `account` and add `profile_id` back to `journal`')
+    ( 9, '5.3.4', '9559b30660100da0270b67d5e8676994843ab998', '2025-08-08T15:53:00-05:00', 'hillsc', '1', '2025-08-08T15:53:00-05:00', '2025-08-08T15:53:00-05:00', 'Add `login_at` to `account` and add `profile_id` back to `journal`'),
+    (10, '5.4.0', '0000000000000000000000000000000000000000', '2025-08-11T17:33:00-05:00', 'hillsc', '1', '2025-08-11T17:33:00-05:00', '2025-08-11T17:33:00-05:00', 'Folder parent is now NOT NULL, `is_system` is now a folder attribute, introduce `import_log`; stub in system account, profile, root folder')
 ;
 
 INSERT INTO ref_date_preset (ref_date_preset_name)

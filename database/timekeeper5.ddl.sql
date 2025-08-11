@@ -48,7 +48,7 @@ CREATE TABLE `account` (
     `account_password`  VARCHAR(255)        NOT NULL,
     `account_email`     VARCHAR(320)        NOT NULL,
     `account_descr`     TEXT,
-    `token`             VARCHAR(32),
+    `token`             VARCHAR(36),
     `project_id__last`  INT,
     `location_id__last` INT,
     `is_admin`          BOOLEAN             NOT NULL DEFAULT FALSE,
@@ -79,8 +79,9 @@ CREATE TABLE `folder` (
     `folder_name`       VARCHAR(255)        NOT NULL,
     `folder_descr`      TEXT,
     `profile_id`        INTEGER             NOT NULL,
-    `folder_id__parent` INTEGER,
+    `folder_id__parent` INTEGER             NOT NULL,
     `sort_order`        INTEGER             NOT NULL DEFAULT 0,
+    `is_system`         BOOLEAN             NOT NULL DEFAULT FALSE,
     `is_open`           BOOLEAN             NOT NULL DEFAULT TRUE,
     `is_hidden`         BOOLEAN             NOT NULL DEFAULT FALSE,
     `is_deleted`        BOOLEAN             NOT NULL DEFAULT FALSE,
@@ -194,6 +195,14 @@ CREATE TABLE `project_group_project` (
     `modified_at`              DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
+CREATE TABLE `import_log` (
+    `import_id`          INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `original_file_name` TEXT,
+    `row_count`          INTEGER,
+    `succeeded`          BOOLEAN             NOT NULL DEFAULT FALSE,
+    `imported_at`        DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+);
+
 CREATE UNIQUE INDEX `idx_schema_version` ON `_schema` (`schema_version`);
 
 CREATE UNIQUE INDEX `idx_account_username` ON `account` (`account_username`);
@@ -205,6 +214,8 @@ CREATE UNIQUE INDEX `idx_profile_name` ON `profile` (`account_id`, `profile_name
 CREATE INDEX `idx_folder_profile_id` ON `folder` (`profile_id`);
 
 CREATE INDEX `idx_folder_parent_id` ON `folder` (`folder_id__parent`);
+
+CREATE UNIQUE INDEX `idx_folder_name` ON `folder` (`folder_name`, `folder_id__parent`, `profile_id`);
 
 CREATE INDEX `idx_activity_folder_id` ON `activity` (`folder_id`);
 

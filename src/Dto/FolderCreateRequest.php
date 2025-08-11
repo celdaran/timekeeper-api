@@ -21,6 +21,9 @@ class FolderCreateRequest
     #[OA\Property(description: 'A numerical position for manually sorting Folders', example: '0')]
     public int $sort = 0;
 
+    #[OA\Property(description: 'A boolean value indicating if the Folder is a system-managed folder', example: '1')]
+    public int $system = 0;
+
     #[OA\Property(description: 'A boolean value indicating if the Folder is open', example: '1')]
     public int $open = 1;
 

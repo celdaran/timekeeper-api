@@ -37,7 +37,7 @@ class TagService extends BaseService
 
     public function fetchByParent(string $name, ?int $parent): array
     {
-        return $this->_fetchByParent('tag', 'tag_name', $name, 'folder_id', $parent);
+        return $this->_fetch2('tag', 'tag_name', $name, 'folder_id', $parent);
     }
 
     public function update(int $id, array $data): bool

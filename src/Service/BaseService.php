@@ -39,7 +39,7 @@ abstract class BaseService
         return $this->db->selectRow($table, $pk, $id);
     }
 
-    protected function _fetchByParent(
+    protected function _fetch2(
         string $table,
         string $columnName, mixed $value,
         string $parentColumnName, mixed $parentValue): array

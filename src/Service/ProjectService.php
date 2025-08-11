@@ -43,7 +43,7 @@ class ProjectService extends BaseService
 
     public function fetchByParent(string $name, ?int $parent): array
     {
-        return $this->_fetchByParent('project', 'project_name', $name, 'folder_id', $parent);
+        return $this->_fetch2('project', 'project_name', $name, 'folder_id', $parent);
     }
 
     public function update(int $id, array $data): bool

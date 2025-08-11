@@ -1,12 +1,25 @@
 <?php namespace App\Service;
 
+use Exception;
 use DateTimeImmutable;
 use App\Dto\JournalCreateRequest;
+use App\Dto\FolderCreateRequest;
+use App\Dto\ProjectCreateRequest;
+use App\Dto\ActivityCreateRequest;
+use App\Dto\LocationCreateRequest;
+use App\Dto\TagCreateRequest;
 use App\Exception\NotFoundException;
 
 class JournalService extends BaseService
 {
-    public function __construct(DatabaseService $databaseService)
+    public function __construct(
+        DatabaseService $databaseService,
+        private readonly FolderService $folderService,
+        private readonly ProjectService $projectService,
+        private readonly ActivityService $activityService,
+        private readonly LocationService $locationService,
+        private readonly TagService $tagService,
+    )
     {
         parent::__construct($databaseService);
         $this->columnMap = [
@@ -86,18 +99,11 @@ class JournalService extends BaseService
     /**
      * Import a CSV file
      *
-     * This is *not* a generic import, it's 100% geared towards reading the
-     * ATracker CSV file. Further, it's *my* version of that file, where I
-     * use ATracker's "task" (i.e., a project) as a track. And what TK calls
-     * projects, activities, locations, and tags are all ATracker tags. It's
-     * working for me, but barely. It's definitely not sustainable. For now
-     * this import is designed to get me past this hurdle. Long term, this
-     * will become a canonical TK5 importer. And the ATracker export will
-     * have to go through an adapter before going into TK.
-     *
      * @param string $uploadedFile
      * @param string $originalFileName
      * @param int $profileId
+     *
+     * @throws Exception
      * @return int
      */
     public function import(string $uploadedFile, string $originalFileName, int $profileId): int
@@ -110,16 +116,15 @@ class JournalService extends BaseService
         while (($row = fgetcsv($fileHandle)) !== false) {
             if ($i > 0) {
                 // First up: load up column values
-                $taskName = $row[0];        // Task name is a "Track"
-                $taskDescription = $row[1]; // Unused
-                $startTime = $row[2];       // Start time
-                $stopTime = $row[3];        // End time
-                $duration = $row[4];        // Unused (we recalculate in the import)
-                $durationInHours = $row[5]; // Unused
-                $memo = $row[6];            // Newlines are stripped  :(
-                $tag = $row[7];             // This needs to be parsed
-
-                $tagParser = new JournalImportParserService($tag);
+                $startTime = $row[0];
+                $stopTime = $row[1];
+                $memo = $row[2];
+                $project = $row[3];
+                $activity = $row[4];
+                $location = $row[5];
+                $tags = $row[6];
+                $ignored = $row[7];
+                $reconciled = $row[8];
 
                 // Next up: translate into whatever
                 $newJournalEntry = new JournalCreateRequest();
@@ -127,11 +132,12 @@ class JournalService extends BaseService
                 $newJournalEntry->startTime = $startTime;
                 $newJournalEntry->stopTime = $stopTime;
                 $newJournalEntry->memo = $memo;
-                $newJournalEntry->project = $this->_extractProject($tagParser);
-                $newJournalEntry->activity = $this->_extractActivity($tagParser);
-                $newJournalEntry->location = $this->_extractLocation($tagParser);
-                $newJournalEntry->tags = [$this->_extractTag($tagParser)];
-                $newJournalEntry->ignored = false;
+                $newJournalEntry->project = $this->_convertProject($project, $profileId);
+                $newJournalEntry->activity = $this->_convertActivity($activity, $profileId);
+                $newJournalEntry->location = $this->_convertLocation($location, $profileId);
+                $newJournalEntry->tags = $this->_convertTags($tags, $profileId);
+                $newJournalEntry->ignored = $ignored;
+                $newJournalEntry->reconciled = $reconciled;
 
                 // Save it
                 $this->create($newJournalEntry);
@@ -139,6 +145,14 @@ class JournalService extends BaseService
             $i++;
         }
         fclose($fileHandle);
+
+        // Import log
+        $log = [
+            'original_file_name' => $originalFileName,
+            'row_count' => $i,
+            'imported_at' => date('Y-m-d H:i:s'),
+        ];
+        $this->db->insert('import_log', $log);
 
         return $i;
     }
@@ -159,53 +173,189 @@ class JournalService extends BaseService
         }
     }
 
-    // Tag - Default | Location - Home | Project - AFK | Activity - General:Participating
-
-    private function _extractProject(JournalImportParserService $p): int
+    /**
+     * Convert the CSV-representation of a project into a project_id
+     *
+     * Sample input: Chores::House::Yard::Mowing and Trimming
+     * Sample output: 375
+     *
+     * Behavior: Think of it as `mkdir -p` because if any part of
+     * the path or project itself doesn't exist, it's created.
+     *
+     * @param string $project
+     * @param int $profileId
+     * @return int
+     * @throws Exception
+     */
+    private function _convertProject(string $project, int $profileId): int
     {
-        $projectName = $p->extractProject();
+        [$projectName, $folderId] = $this->_getEntityAndParent($project, $profileId);
+
         try {
-            $project = $this->db->selectRow('project', 'project_name', $projectName, 'project_id');
+            $project = $this->projectService->fetchByParent($projectName, $folderId);
             return $project['project_id'];
         }
-        catch (NotFoundException $e) {
-            // If project wasn't found, create it
-            // NOTE: this treats all projects as flat
-            // So . . . never mind. I shouldn't even do this until I can actually do it
-            // For example, if "Project" is "Track:Software:Timekeeper" then this means:
-            // 1. Find or create folder "Track"
-            // 2. Find or create folder "Software"
-            // 3. Find or create project "Timekeeper"
-            // ---ORRRRRR--- and this is probably better (as a hack)
-            // A straight-up lookup table. Two columns:
-            // column A: "The ATracker Project Name"
-            // column B: "The Timekeeper project ID"
-            // This means autovivification is out: I'd have to predefine these
-            // So there's that upfront pain, but it gives me total control
-            // and I can also do many-to-one mapping
-            return 0;
-        }
-        catch (\Exception $e) {
-            return 0;
+        catch (NotFoundException) {
+            $newProject = new ProjectCreateRequest();
+            $newProject->name = $projectName;
+            $newProject->description = 'Project created during CSV import';
+            $newProject->folder = $folderId;
+            return $this->projectService->create($newProject);
         }
     }
 
-    private function _extractActivity(JournalImportParserService $p): int
+    /**
+     * Convert the CSV-representation of an activity into an activity_id
+     *
+     * @param string $activity
+     * @param int $profileId
+     * @return int
+     * @throws Exception
+     */
+    private function _convertActivity(string $activity, int $profileId): int
     {
-        $activityName = $p->extractActivity();
-        return 2;
+        [$activityName, $folderId] = $this->_getEntityAndParent($activity, $profileId);
+
+        try {
+            $activity = $this->activityService->fetchByParent($activityName, $folderId);
+            return $activity['activity_id'];
+        }
+        catch (NotFoundException) {
+            $newActivity = new ActivityCreateRequest();
+            $newActivity->name = $activityName;
+            $newActivity->description = 'Activity created during CSV import';
+            $newActivity->folder = $folderId;
+            return $this->activityService->create($newActivity);
+        }
     }
 
-    private function _extractLocation(JournalImportParserService $p): int
+    /**
+     * Convert the CSV-representation of a location into a location_id
+     *
+     * @param string $location
+     * @param int $profileId
+     * @return int
+     * @throws Exception
+     */
+    private function _convertLocation(string $location, int $profileId): int
     {
-        $locationName = $p->extractLocation();
-        return 3;
+        [$locationName, $folderId] = $this->_getEntityAndParent($location, $profileId);
+
+        try {
+            $location = $this->locationService->fetchByParent($locationName, $folderId);
+            return $location['location_id'];
+        }
+        catch (NotFoundException) {
+            $newLocation = new LocationCreateRequest();
+            $newLocation->name = $locationName;
+            $newLocation->description = 'Location created during CSV import';
+            $newLocation->folder = $folderId;
+            return $this->locationService->create($newLocation);
+        }
     }
 
-    private function _extractTag(JournalImportParserService $p): int
+    /**
+     * Convert the CSV-representation of an array of tags into an array of tag_id values
+     *
+     * @param string $tags
+     * @param int $profileId
+     * @return array
+     * @throws Exception
+     */
+    private function _convertTags(string $tags, int $profileId): array
     {
-        $tagName = $p->extractTag();
-        return 1;
+        $tagArray = explode('||', $tags);
+        $tagIdArray = [];
+        foreach ($tagArray as $tag) {
+            $tagIdArray[] = $this->_convertTag($tag, $profileId);
+        }
+        return $tagIdArray;
+    }
+
+    /**
+     * Convert the CSV-representation of a tag into a tag_id
+     *
+     * @param string $tag
+     * @param int $profileId
+     * @return int
+     * @throws Exception
+     */
+    private function _convertTag(string $tag, int $profileId): int
+    {
+        [$tagName, $folderId] = $this->_getEntityAndParent($tag, $profileId);
+
+        try {
+            $tag = $this->tagService->fetchByParent($tagName, $folderId);
+            return $tag['tag_id'];
+        }
+        catch (NotFoundException) {
+            $newTag = new TagCreateRequest();
+            $newTag->name = $tagName;
+            $newTag->description = 'Tag created during CSV import';
+            $newTag->folder = $folderId;
+            return $this->tagService->create($newTag);
+        }
+    }
+
+    /**
+     *
+     * @param string $entity
+     * @param int $profileId
+     * @return array
+     * @throws Exception
+     */
+    private function _getEntityAndParent(string $entity, int $profileId): array
+    {
+        $folders = explode('::', $entity);
+        $entityName = array_pop($folders);
+        $folderId = $this->_createFolderHierarchy($folders, $profileId);
+        return [$entityName, $folderId];
+    }
+
+    /**
+     * Create zero or more folders in a hierarchy returning folder_id of the last
+     *
+     * @param array $folders
+     * @param int $profileId
+     * @return int
+     * @throws Exception
+     */
+    private function _createFolderHierarchy(array $folders, int $profileId): int
+    {
+        // Each profile has its own root folder
+        $rootFolder = $this->folderService->fetchRootByProfile($profileId);
+        $folderId = $rootFolder['folder_id'];
+
+        // Samples: Note that a folder name alone is not unique!
+        // Chores::House::Yard::Mowing and Trimming     project:Mowing and Trimming
+        // Chores::House::Kitchen                       project:Kitchen
+        // Creative::House::Media Room                  project:Media Room
+        // Creative::Software::House::Design            project:Design
+
+        foreach ($folders as $folderName) {
+            // Make sure there's no leading or trailing whitespace
+            $folderName = trim($folderName);
+            try {
+                $folder = $this->folderService->fetchByParent($folderName, $folderId);
+                $folderId = $folder['folder_id'];
+            }
+            catch (NotFoundException $e) {
+                $newFolder = new FolderCreateRequest();
+                $newFolder->name = $folderName;
+                $newFolder->profile = $profileId;
+                $newFolder->parent = $folderId;
+                $newFolderId = $this->folderService->create($newFolder);
+                $folderId = $newFolderId;
+            }
+            // TODO: handle other or unexpected errors
+            /*
+            catch (Exception $e) {
+                throw $e;
+            }
+            */
+        }
+
+        return $folderId;
     }
 
 }

@@ -43,7 +43,12 @@ class FolderService extends BaseService
 
     public function fetchByParent(string $name, ?int $parent): array
     {
-        return $this->_fetchByParent('folder', 'folder_name', $name, 'folder_id__parent', $parent);
+        return $this->_fetch2('folder', 'folder_name', $name, 'folder_id__parent', $parent);
+    }
+
+    public function fetchRootByProfile(int $profileId): array
+    {
+        return $this->_fetch2('folder', 'folder_name', FolderService::PROFILE_ROOT_FOLDER_NAME, 'profile_id', $profileId);
     }
 
     public function update(int $id, array $data): bool

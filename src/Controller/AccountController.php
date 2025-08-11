@@ -57,13 +57,6 @@ final class AccountController extends BaseController
         return $this->_fetch($this->accountService, $id, 'account');
     }
 
-    #[Route('/api/v1/account/{id}', name: 'account_fetch', methods: ['GET'])]
-    #[IsGranted('ROLE_ADMIN')]
-    public function fetchAnyone(Request $request, int $id): JsonResponse
-    {
-        return $this->_fetch($this->accountService, $id, 'account');
-    }
-
     #[Route('/api/v1/account/{id}', name: 'account_update', methods: ['PUT'])]
     #[IsGranted('ROLE_API_ADMIN')]
     public function update(Request $request, int $id): JsonResponse

@@ -36,6 +36,9 @@ class CreateSysadminAccountCommand extends Command
         $helper = $this->getHelper('question');
 
         // Ask for a password, with hidden input
+        $accountQuestion = new Question('Please enter a new system administrator account name (UUID preferred): ');
+        $account = $helper->ask($input, $output, $accountQuestion);
+
         $passwordQuestion = new Question('Please enter a new system administrator password: ');
         $passwordQuestion->setHidden(true);
         $passwordQuestion->setHiddenFallback(false);
@@ -43,7 +46,7 @@ class CreateSysadminAccountCommand extends Command
         $password = $helper->ask($input, $output, $passwordQuestion);
 
         $newAccount = new AccountCreateRequest();
-        $newAccount->username = '11a7ff06-a07f-46be-aa8b-8aac098f41b9';
+        $newAccount->username = $account;
         $newAccount->password = $password;
         $newAccount->email = 'none@example.com';
         $newAccount->admin = true;

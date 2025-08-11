@@ -39,6 +39,14 @@ abstract class BaseService
         return $this->db->selectRow($table, $pk, $id);
     }
 
+    protected function _fetchByParent(
+        string $table,
+        string $columnName, mixed $value,
+        string $parentColumnName, mixed $parentValue): array
+    {
+        return $this->db->selectRowByParent($table, $columnName, $value, $parentColumnName, $parentValue);
+    }
+
     protected function _update(string $table, string $pk, int $id, array $data): bool
     {
         $payload = [];

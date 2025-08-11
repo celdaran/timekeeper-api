@@ -1,7 +1,9 @@
 <?php namespace App\Service;
 
 use App\Dto\AccountCreateRequest;
+use App\Dto\ActivityCreateRequest;
 use App\Dto\FolderCreateRequest;
+use App\Dto\LocationCreateRequest;
 use App\Dto\ProfileCreateRequest;
 use App\Dto\ProjectCreateRequest;
 
@@ -10,18 +12,25 @@ class AccountService extends BaseService
     private ProfileService $profileService;
     private FolderService $folderService;
     private ProjectService $projectService;
+    private ActivityService $activityService;
+    private LocationService $locationService;
 
     public function __construct(
         DatabaseService $databaseService,
         ProfileService $profileService,
         FolderService $folderService,
-        ProjectService $projectService)
+        ProjectService $projectService,
+        ActivityService $activityService,
+        LocationService $locationService,
+    )
     {
         parent::__construct($databaseService);
 
         $this->profileService = $profileService;
         $this->folderService = $folderService;
         $this->projectService = $projectService;
+        $this->activityService = $activityService;
+        $this->locationService = $locationService;
 
         $this->columnMap = [
             'id' => 'account_id',
@@ -31,6 +40,7 @@ class AccountService extends BaseService
             'description' => 'account_descr',
             'last_project' => 'project_id__last',
             'last_location' => 'location_id__last',
+            'admin' => 'is_admin',
             'hidden' => 'is_hidden',
             'deleted' => 'is_deleted',
         ];
@@ -42,61 +52,60 @@ class AccountService extends BaseService
         return 'account';
     }
 
-    public function create(AccountCreateRequest $account): array
+    public function create(AccountCreateRequest $account, bool $isSysAdmin = false): array
     {
-        // AccountCreateRequest row in account table
+        // Create new account
         $row = [
             'account_username' => $account->username,
             'account_password' => password_hash($account->password, PASSWORD_ARGON2ID),
             'account_email' => $account->email,
+            'account_descr' => $account->description,
+            'is_admin' => $account->admin,
             'is_hidden' => 0,
             'is_deleted' => 0,
         ];
         $accountId = $this->db->insert('account', $row);
 
-        // AccountCreateRequest default profile
+        // Create default profile
         $profile = new ProfileCreateRequest();
         $profile->name = 'Default Profile';
         $profile->description = 'This is the default profile.';
         $profile->account = $accountId;
         $profileId = $this->profileService->create($profile);
 
+        // Create profile's root folder
         $folder = new FolderCreateRequest();
-        $folder->name = 'f0143152-d8a6-4e26-a418-50763bb396bf';
+        $folder->name = FolderService::PROFILE_ROOT_FOLDER_NAME;
         $folder->description = 'This is the root folder, required by the schema and hidden from the user.';
         $folder->profile = $profileId;
-        $folder->parent = null;
+        $folder->parent = 1; // system-generated admin folder (hidden root of all folders as folders are NOT NULL)
         $folder->sort = 1;
+        $folder->system = 1;
         $folder->hidden = 1;
         $folderId = $this->folderService->create($folder);
 
-        // AccountCreateRequest default dimensions
-        $project = new ProjectCreateRequest();
-        $project->name = 'Default Project';
-        $project->description = 'This is the default project. Feel free to use as-is or edit as needed.';
-        $project->folder = $folderId;
-        $this->projectService->create($project);
+        if (!$isSysAdmin) {
+            // Create default project
+            $project = new ProjectCreateRequest();
+            $project->name = 'Default Project';
+            $project->description = 'This is the default project. Feel free to use as-is or edit as needed.';
+            $project->folder = $folderId;
+            $this->projectService->create($project);
 
-        $payload = [
-            'activity_name' => 'Default Activity',
-            'activity_descr' => 'This is the default activity. Feel free to use as-is or edit as needed.',
-            'folder_id' => $folderId,
-            'sort_order' => 1,
-            'is_hidden' => 0,
-            'is_deleted' => 0,
-        ];
-        $this->db->insert('activity', $payload);
+            // Create default activity
+            $activity = new ActivityCreateRequest();
+            $activity->name = 'Default Activity';
+            $activity->description = 'This is the default activity. Feel free to use as-is or edit as needed.';
+            $activity->folder = $folderId;
+            $this->activityService->create($activity);
 
-        $payload = [
-            'location_name' => 'Default Location',
-            'location_descr' => 'This is the default location. Feel free to use as-is or edit as needed.',
-            'folder_id' => $folderId,
-            'sort_order' => 1,
-            'is_hidden' => 0,
-            'is_deleted' => 0,
-            'ref_time_zone_id' => 337, // "Europe/London"
-        ];
-        $this->db->insert('location', $payload);
+            // Create default location
+            $location = new LocationCreateRequest();
+            $location->name = 'Default Location';
+            $location->description = 'This is the default location. Feel free to use as-is or edit as needed.';
+            $location->folder = $folderId;
+            $this->locationService->create($location);
+        }
 
         return [
             'account_id' => $accountId,

@@ -31,6 +31,35 @@ class DatabaseService
         return $row;
     }
 
+    public function selectRowByParent(
+        string $table,
+        string $columnName, mixed $value,
+        string $parentColumnName, mixed $parentValue,
+        string $columns = '*'): array
+    {
+        if ($parentValue === null) {
+            $sql = "SELECT $columns FROM $table WHERE $columnName = ? AND $parentColumnName IS NULL";
+            $sth = $this->pdo->prepare($sql);
+            $sth->execute([$value]);
+        } else {
+            $sql = "SELECT $columns FROM $table WHERE $columnName = ? AND $parentColumnName = ?";
+            $sth = $this->pdo->prepare($sql);
+            $sth->execute([$value, $parentValue]);
+        }
+
+        $row = $sth->fetch(PDO::FETCH_ASSOC);
+        if ($row === false) {
+            if ($parentValue === null) {
+                $tmp = "`$parentColumnName` IS NULL";
+            } else {
+                $tmp = "`$parentColumnName` = '$parentValue'";
+            }
+            throw new NotFoundException("No row found in table `$table` where `$columnName` = '$value' AND $tmp");
+        }
+
+        return $row;
+    }
+
     public function insert(string $table, array $row): int
     {
         $columns = array_keys($row);

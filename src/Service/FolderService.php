@@ -4,6 +4,8 @@ use App\Dto\FolderCreateRequest;
 
 class FolderService extends BaseService
 {
+    public const PROFILE_ROOT_FOLDER_NAME = '33c9ddea-e579-499f-80f4-b0f9775eb0b7';
+
     public function __construct(DatabaseService $databaseService)
     {
         parent::__construct($databaseService);
@@ -37,6 +39,11 @@ class FolderService extends BaseService
     public function fetch(int $id): array
     {
         return $this->_fetch('folder', 'folder_id', $id);
+    }
+
+    public function fetchByParent(string $name, ?int $parent): array
+    {
+        return $this->_fetchByParent('folder', 'folder_name', $name, 'folder_id__parent', $parent);
     }
 
     public function update(int $id, array $data): bool

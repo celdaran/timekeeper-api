@@ -52,7 +52,8 @@ class JournalService extends BaseService
             'project_id' => $journal->project,
             'activity_id' => $journal->activity,
             'location_id' => $journal->location,
-            'is_ignored' => $journal->ignored,
+            'is_ignored' => $journal->ignored ? 1 : 0,
+            'is_reconciled' => $journal->reconciled ? 1 : 0,
         ];
         $journalId = $this->db->insert('journal', $row);
 

@@ -60,7 +60,7 @@ class AccountService extends BaseService
             'account_password' => password_hash($account->password, PASSWORD_ARGON2ID),
             'account_email' => $account->email,
             'account_descr' => $account->description,
-            'is_admin' => $account->admin,
+            'is_admin' => $account->admin ? 1 : 0,
             'is_hidden' => 0,
             'is_deleted' => 0,
         ];

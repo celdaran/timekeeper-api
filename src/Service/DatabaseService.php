@@ -88,6 +88,21 @@ class DatabaseService
         return ($count > 0);
     }
 
+    public function begin(): void
+    {
+        $this->pdo->beginTransaction();
+    }
+
+    public function commit(): void
+    {
+        $this->pdo->commit();
+    }
+
+    public function rollback(): void
+    {
+        $this->pdo->rollBack();
+    }
+
     private function buildUpdateStatement(string $tableName, array $data, string $pk, mixed $id): array
     {
         if (empty($data)) {

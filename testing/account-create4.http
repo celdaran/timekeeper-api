@@ -5,5 +5,6 @@ X-API-KEY: {{tokenAccount1}}
 {
   "username": "{{usernameAccount4}}",
   "password": "{{passwordAccount4}}",
-  "email": "{{emailAccount4}}"
+  "email": "{{emailAccount4}}",
+  "admin": false
 }

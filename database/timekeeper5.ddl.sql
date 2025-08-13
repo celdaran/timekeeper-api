@@ -200,6 +200,7 @@ CREATE TABLE `import_log` (
     `original_file_name` TEXT,
     `row_count`          INT,
     `succeeded`          BOOL            NOT NULL DEFAULT FALSE,
+    `message`            TEXT,
     `imported_at`        DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 

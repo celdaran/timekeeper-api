@@ -10,7 +10,8 @@ VALUES
     ( 8, '5.3.3', '133e4ab32c897ed355f1d2457027368d872727e4', '2025-08-07T15:03:00-05:00', 'hillsc', '1', '2025-08-07T15:03:00-05:00', '2025-08-07T15:03:00-05:00', 'Add `token` and `is_admin` to `account` to go along with new authentication model (see commit 21e0e5be09610449f7140dafc8d9f26881c02ba6)'),
     ( 9, '5.3.4', '9559b30660100da0270b67d5e8676994843ab998', '2025-08-08T15:53:00-05:00', 'hillsc', '1', '2025-08-08T15:53:00-05:00', '2025-08-08T15:53:00-05:00', 'Add `login_at` to `account` and add `profile_id` back to `journal`'),
     (10, '5.4.0', 'd9fcd1f68d71ee127fa77574700726d85216a0b9', '2025-08-11T17:33:00-05:00', 'hillsc', '1', '2025-08-11T17:33:00-05:00', '2025-08-11T17:33:00-05:00', 'Folder parent is now NOT NULL, `is_system` is now a folder attribute, introduce `import_log`; stub in system account, profile, root folder'),
-    (11, '5.4.1', '0000000000000000000000000000000000000000', '2025-08-13T00:17:00-05:00', 'hillsc', '1', '2025-08-13T00:17:00-05:00', '2025-08-13T00:17:00-05:00', 'Ensure no two journal entries for the same profile can start at the same time: that''s the duplicate check')
+    (11, '5.4.1', '1dc491622fafe1c297ad9d4c7c1474c21f1c780e', '2025-08-13T00:17:00-05:00', 'hillsc', '1', '2025-08-13T00:17:00-05:00', '2025-08-13T00:17:00-05:00', 'Ensure no two journal entries for the same profile can start at the same time: that''s the duplicate check'),
+    (12, '5.4.2', '0000000000000000000000000000000000000000', '2025-08-13T17:15:00-05:00', 'hillsc', '1', '2025-08-13T17:15:00-05:00', '2025-08-13T17:15:00-05:00', 'Add `message` column to `import_log`')
 ;
 
 INSERT INTO ref_date_preset (ref_date_preset_name)

@@ -1,5 +1,5 @@
 Project timekeeper {
-  Note: 'Schema version 5.4.0'
+  Note: 'Schema version 5.4.2'
   database_type: 'MySQL'
 }
 
@@ -228,6 +228,7 @@ Table import_log {
   original_file_name TEXT
   row_count INT
   succeeded BOOL [not null, default: false]
+  message TEXT
   imported_at DATETIME [not null, default: `current_timestamp`]
 }
 

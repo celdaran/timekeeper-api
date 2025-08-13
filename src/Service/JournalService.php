@@ -9,6 +9,7 @@ use App\Dto\ActivityCreateRequest;
 use App\Dto\LocationCreateRequest;
 use App\Dto\TagCreateRequest;
 use App\Exception\NotFoundException;
+use App\Exception\BlankValueException;
 
 class JournalService extends BaseService
 {
@@ -103,7 +104,6 @@ class JournalService extends BaseService
      * @param string $originalFileName
      * @param int $profileId
      *
-     * @throws Exception
      * @return int
      */
     public function import(string $uploadedFile, string $originalFileName, int $profileId): int
@@ -111,50 +111,72 @@ class JournalService extends BaseService
         // Open file
         $fileHandle = fopen($uploadedFile, 'r');
 
-        // Read lines
-        $i = 0;
-        while (($row = fgetcsv($fileHandle)) !== false) {
-            if ($i > 0) {
-                // First up: load up column values
-                $startTime = $row[0];
-                $stopTime = $row[1];
-                $memo = $row[2];
-                $project = $row[3];
-                $activity = $row[4];
-                $location = $row[5];
-                $tags = $row[6];
-                $ignored = $row[7];
-                $reconciled = $row[8];
+        // Start transaction
+        $this->db->begin();
+        $succeeded = false;
+        $lastStartTime = '';
 
-                // Next up: translate into whatever
-                $newJournalEntry = new JournalCreateRequest();
-                $newJournalEntry->profile = $profileId;
-                $newJournalEntry->startTime = $startTime;
-                $newJournalEntry->stopTime = $stopTime;
-                $newJournalEntry->memo = $memo;
-                $newJournalEntry->project = $this->_convertProject($project, $profileId);
-                $newJournalEntry->activity = $this->_convertActivity($activity, $profileId);
-                $newJournalEntry->location = $this->_convertLocation($location, $profileId);
-                $newJournalEntry->tags = $this->_convertTags($tags, $profileId);
-                $newJournalEntry->ignored = $ignored;
-                $newJournalEntry->reconciled = $reconciled;
+        try {
+            // Read lines
+            $rowCount = 0;
+            while (($row = fgetcsv($fileHandle)) !== false) {
+                if ($rowCount > 0) {
+                    // First up: load up column values
+                    $startTime = $row[0];
+                    $stopTime = $row[1];
+                    $memo = $row[2];
+                    $project = $row[3];
+                    $activity = $row[4];
+                    $location = $row[5];
+                    $tags = $row[6];
+                    $ignored = $row[7];
+                    $reconciled = $row[8];
 
-                // Save it
-                $this->create($newJournalEntry);
+                    // For error handling only
+                    $lastStartTime = $startTime;
+
+                    // Next up: translate into whatever
+                    $newJournalEntry = new JournalCreateRequest();
+                    $newJournalEntry->profile = $profileId;
+                    $newJournalEntry->startTime = $startTime;
+                    $newJournalEntry->stopTime = $stopTime;
+                    $newJournalEntry->memo = $memo;
+                    $newJournalEntry->project = $this->_convertProject($project, $profileId);
+                    $newJournalEntry->activity = $this->_convertActivity($activity, $profileId);
+                    $newJournalEntry->location = $this->_convertLocation($location, $profileId);
+                    $newJournalEntry->tags = $this->_convertTags($tags, $profileId);
+                    $newJournalEntry->ignored = $ignored;
+                    $newJournalEntry->reconciled = $reconciled;
+
+                    // Save it
+                    $this->create($newJournalEntry);
+                }
+                $rowCount++;
             }
-            $i++;
+
+            // Clean up
+            $this->db->commit();
+            fclose($fileHandle);
+            $succeeded = true;
+            $message = 'Successfully imported ' . ($rowCount - 1) . ' records from file ' . $originalFileName;
         }
-        fclose($fileHandle);
+        catch (\Exception $e) {
+            $this->db->rollback();
+            $message = sprintf("%s\nstart_time: %s, profile_id %d",
+                $e->getMessage(), $lastStartTime, $profileId);
+        }
 
         // Import log
         $log = [
             'original_file_name' => $originalFileName,
-            'row_count' => $i,
+            'row_count' => ($rowCount - 1),
             'imported_at' => date('Y-m-d H:i:s'),
+            'succeeded' => $succeeded ? 1 : 0,
+            'message' => $message,
         ];
         $this->db->insert('import_log', $log);
 
-        return $i;
+        return $rowCount;
     }
 
     private function getElapsedSeconds(string $startTime, string $endTime): int
@@ -306,9 +328,14 @@ class JournalService extends BaseService
      */
     private function _getEntityAndParent(string $entity, int $profileId): array
     {
+        if (empty($entity)) {
+            throw new BlankValueException('entity cannot be blank');
+        }
+
         $folders = explode('::', $entity);
         $entityName = array_pop($folders);
         $folderId = $this->_createFolderHierarchy($folders, $profileId);
+
         return [$entityName, $folderId];
     }
 

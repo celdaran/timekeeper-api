@@ -1,213 +1,209 @@
 CREATE TABLE `_schema` (
-    `schema_id`      INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `schema_version` VARCHAR(31) UNIQUE  NOT NULL,
-    `schema_descr`   VARCHAR(255)        NOT NULL,
-    `commit_sha`     VARCHAR(40)         NOT NULL,
-    `applied_at`     DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `applied_by`     VARCHAR(255)        NOT NULL,
-    `status_id`      INT                 NOT NULL,
-    `created_at`     DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `modified_at`    DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `schema_id`      INT PRIMARY KEY    NOT NULL AUTO_INCREMENT,
+    `schema_version` VARCHAR(31) UNIQUE NOT NULL,
+    `schema_descr`   VARCHAR(255)       NOT NULL,
+    `commit_sha`     VARCHAR(40)        NOT NULL,
+    `applied_at`     DATETIME           NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `applied_by`     VARCHAR(255)       NOT NULL,
+    `status_id`      INT                NOT NULL,
+    `created_at`     DATETIME           NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`    DATETIME           NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `ref_date_preset` (
-    `ref_date_preset_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `ref_date_preset_name`  VARCHAR(255)        NOT NULL,
+    `ref_date_preset_id`    INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `ref_date_preset_name`  VARCHAR(255)    NOT NULL,
     `ref_date_preset_descr` TEXT,
-    `created_at`            DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `modified_at`           DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `created_at`            DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`           DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `ref_group_by` (
-    `ref_group_by_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `ref_group_by_name`  VARCHAR(255)        NOT NULL,
+    `ref_group_by_id`    INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `ref_group_by_name`  VARCHAR(255)    NOT NULL,
     `ref_group_by_descr` TEXT,
-    `created_at`         DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `modified_at`        DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `created_at`         DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`        DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `ref_time_display` (
-    `ref_time_display_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `ref_time_display_name`  VARCHAR(255)        NOT NULL,
+    `ref_time_display_id`    INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `ref_time_display_name`  VARCHAR(255)    NOT NULL,
     `ref_time_display_descr` TEXT,
-    `created_at`             DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `modified_at`            DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `created_at`             DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`            DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `ref_time_zone` (
-    `ref_time_zone_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `ref_time_zone_name`  VARCHAR(255)        NOT NULL,
+    `ref_time_zone_id`    INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `ref_time_zone_name`  VARCHAR(255)    NOT NULL,
     `ref_time_zone_descr` TEXT,
-    `created_at`          DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `modified_at`         DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `created_at`          DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`         DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `account` (
-    `account_id`        INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `account_username`  VARCHAR(255)        NOT NULL,
+    `account_id`        INT PRIMARY KEY     NOT NULL AUTO_INCREMENT,
+    `account_username`  VARCHAR(255) UNIQUE NOT NULL,
     `account_password`  VARCHAR(255)        NOT NULL,
-    `account_email`     VARCHAR(320)        NOT NULL,
+    `account_email`     VARCHAR(320) UNIQUE NOT NULL,
     `account_descr`     TEXT,
     `token`             VARCHAR(36),
     `project_id__last`  INT,
     `location_id__last` INT,
-    `is_admin`          BOOLEAN             NOT NULL DEFAULT FALSE,
-    `is_hidden`         BOOLEAN             NOT NULL DEFAULT FALSE,
-    `is_deleted`        BOOLEAN             NOT NULL DEFAULT FALSE,
+    `is_admin`          BOOL                NOT NULL DEFAULT FALSE,
+    `login_at`          DATETIME,
+    `is_hidden`         BOOL                NOT NULL DEFAULT FALSE,
+    `is_deleted`        BOOL                NOT NULL DEFAULT FALSE,
     `hidden_at`         DATETIME,
     `deleted_at`        DATETIME,
-    `login_at`          DATETIME,
     `created_at`        DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
     `modified_at`       DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `profile` (
-    `profile_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `profile_name`  VARCHAR(255)        NOT NULL,
+    `profile_id`    INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `profile_name`  VARCHAR(255)    NOT NULL,
     `profile_descr` TEXT,
-    `account_id`    INTEGER             NOT NULL,
-    `is_hidden`     BOOLEAN             NOT NULL DEFAULT FALSE,
-    `is_deleted`    BOOLEAN             NOT NULL DEFAULT FALSE,
+    `account_id`    INT             NOT NULL,
+    `is_hidden`     BOOL            NOT NULL DEFAULT FALSE,
+    `is_deleted`    BOOL            NOT NULL DEFAULT FALSE,
     `hidden_at`     DATETIME,
     `deleted_at`    DATETIME,
-    `created_at`    DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `modified_at`   DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `created_at`    DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`   DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `folder` (
-    `folder_id`         INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `folder_name`       VARCHAR(255)        NOT NULL,
+    `folder_id`         INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `folder_name`       VARCHAR(255)    NOT NULL,
     `folder_descr`      TEXT,
-    `profile_id`        INTEGER             NOT NULL,
-    `folder_id__parent` INTEGER             NOT NULL,
-    `sort_order`        INTEGER             NOT NULL DEFAULT 0,
-    `is_system`         BOOLEAN             NOT NULL DEFAULT FALSE,
-    `is_open`           BOOLEAN             NOT NULL DEFAULT TRUE,
-    `is_hidden`         BOOLEAN             NOT NULL DEFAULT FALSE,
-    `is_deleted`        BOOLEAN             NOT NULL DEFAULT FALSE,
+    `profile_id`        INT             NOT NULL,
+    `folder_id__parent` INT             NOT NULL,
+    `sort_order`        INT             NOT NULL DEFAULT 0,
+    `is_system`         BOOL            NOT NULL DEFAULT FALSE,
+    `is_open`           BOOL            NOT NULL DEFAULT TRUE,
+    `is_hidden`         BOOL            NOT NULL DEFAULT FALSE,
+    `is_deleted`        BOOL            NOT NULL DEFAULT FALSE,
     `hidden_at`         DATETIME,
     `deleted_at`        DATETIME,
-    `created_at`        DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `modified_at`       DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `created_at`        DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`       DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `activity` (
-    `activity_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `activity_name`  VARCHAR(255)        NOT NULL,
+    `activity_id`    INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `activity_name`  VARCHAR(255)    NOT NULL,
     `activity_descr` TEXT,
-    `folder_id`      INTEGER             NOT NULL,
-    `sort_order`     INTEGER             NOT NULL DEFAULT 0,
-    `is_hidden`      BOOLEAN             NOT NULL DEFAULT FALSE,
-    `is_deleted`     BOOLEAN             NOT NULL DEFAULT FALSE,
+    `folder_id`      INT             NOT NULL,
+    `sort_order`     INT             NOT NULL DEFAULT 0,
+    `is_hidden`      BOOL            NOT NULL DEFAULT FALSE,
+    `is_deleted`     BOOL            NOT NULL DEFAULT FALSE,
     `hidden_at`      DATETIME,
     `deleted_at`     DATETIME,
-    `created_at`     DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `modified_at`    DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `created_at`     DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`    DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `location` (
-    `location_id`      INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `location_name`    VARCHAR(255)        NOT NULL,
+    `location_id`      INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `location_name`    VARCHAR(255)    NOT NULL,
     `location_descr`   TEXT,
-    `folder_id`        INTEGER             NOT NULL,
-    `sort_order`       INTEGER             NOT NULL DEFAULT 0,
-    `is_hidden`        BOOLEAN             NOT NULL DEFAULT FALSE,
-    `is_deleted`       BOOLEAN             NOT NULL DEFAULT FALSE,
+    `ref_time_zone_id` INT             NOT NULL,
+    `folder_id`        INT             NOT NULL,
+    `sort_order`       INT             NOT NULL DEFAULT 0,
+    `is_hidden`        BOOL            NOT NULL DEFAULT FALSE,
+    `is_deleted`       BOOL            NOT NULL DEFAULT FALSE,
     `hidden_at`        DATETIME,
     `deleted_at`       DATETIME,
-    `ref_time_zone_id` INTEGER             NOT NULL,
-    `created_at`       DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `modified_at`      DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `created_at`       DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`      DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `project` (
-    `project_id`        INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `project_name`      VARCHAR(255)        NOT NULL,
+    `project_id`        INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `project_name`      VARCHAR(255)    NOT NULL,
     `project_descr`     TEXT,
-    `folder_id`         INTEGER             NOT NULL,
-    `sort_order`        INTEGER             NOT NULL DEFAULT 0,
-    `is_hidden`         BOOLEAN             NOT NULL DEFAULT FALSE,
-    `is_deleted`        BOOLEAN             NOT NULL DEFAULT FALSE,
-    `hidden_at`         DATETIME,
-    `deleted_at`        DATETIME,
-    `activity_id__last` INTEGER,
+    `activity_id__last` INT,
     `external_ident`    TEXT,
     `external_url`      TEXT,
-    `created_at`        DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `modified_at`       DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `folder_id`         INT             NOT NULL,
+    `sort_order`        INT             NOT NULL DEFAULT 0,
+    `is_hidden`         BOOL            NOT NULL DEFAULT FALSE,
+    `is_deleted`        BOOL            NOT NULL DEFAULT FALSE,
+    `hidden_at`         DATETIME,
+    `deleted_at`        DATETIME,
+    `created_at`        DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`       DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `tag` (
-    `tag_id`      INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `tag_name`    VARCHAR(255)        NOT NULL,
+    `tag_id`      INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `tag_name`    VARCHAR(255)    NOT NULL,
     `tag_descr`   TEXT,
-    `folder_id`   INTEGER             NOT NULL,
-    `sort_order`  INTEGER             NOT NULL DEFAULT 0,
-    `is_hidden`   BOOLEAN             NOT NULL DEFAULT FALSE,
-    `is_deleted`  BOOLEAN             NOT NULL DEFAULT FALSE,
+    `folder_id`   INT             NOT NULL,
+    `sort_order`  INT             NOT NULL DEFAULT 0,
+    `is_hidden`   BOOL            NOT NULL DEFAULT FALSE,
+    `is_deleted`  BOOL            NOT NULL DEFAULT FALSE,
     `hidden_at`   DATETIME,
     `deleted_at`  DATETIME,
-    `created_at`  DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `modified_at` DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `created_at`  DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at` DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `journal` (
-    `journal_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `start_time`    DATETIME            NOT NULL,
-    `stop_time`     DATETIME            NOT NULL,
-    `duration`      INTEGER             NOT NULL,
+    `journal_id`    INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `start_time`    DATETIME        NOT NULL,
+    `stop_time`     DATETIME        NOT NULL,
+    `duration`      INT             NOT NULL,
     `memo`          TEXT,
-    `profile_id`    INTEGER             NOT NULL,
-    `project_id`    INTEGER             NOT NULL,
-    `activity_id`   INTEGER             NOT NULL,
-    `location_id`   INTEGER             NOT NULL,
-    `is_locked`     BOOLEAN             NOT NULL DEFAULT FALSE,
-    `is_ignored`    BOOLEAN             NOT NULL DEFAULT FALSE,
-    `is_reconciled` BOOLEAN             NOT NULL DEFAULT FALSE,
-    `created_at`    DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `modified_at`   DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `profile_id`    INT             NOT NULL,
+    `project_id`    INT             NOT NULL,
+    `activity_id`   INT             NOT NULL,
+    `location_id`   INT             NOT NULL,
+    `is_locked`     BOOL            NOT NULL DEFAULT FALSE,
+    `is_ignored`    BOOL            NOT NULL DEFAULT FALSE,
+    `is_reconciled` BOOL            NOT NULL DEFAULT FALSE,
+    `created_at`    DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`   DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `journal_tag` (
-    `journal_tag_id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `journal_id`     INTEGER             NOT NULL,
-    `tag_id`         INTEGER             NOT NULL,
-    `created_at`     DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `journal_tag_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `journal_id`     INT             NOT NULL,
+    `tag_id`         INT             NOT NULL,
+    `created_at`     DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `project_group` (
-    `project_group_id`    INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `project_group_name`  VARCHAR(255)        NOT NULL,
+    `project_group_id`    INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `project_group_name`  VARCHAR(255)    NOT NULL,
     `project_group_descr` TEXT,
-    `account_id`          INTEGER             NOT NULL,
-    `is_hidden`           BOOLEAN             NOT NULL DEFAULT FALSE,
-    `is_deleted`          BOOLEAN             NOT NULL DEFAULT FALSE,
+    `account_id`          INT             NOT NULL,
+    `is_hidden`           BOOL            NOT NULL DEFAULT FALSE,
+    `is_deleted`          BOOL            NOT NULL DEFAULT FALSE,
     `hidden_at`           DATETIME,
     `deleted_at`          DATETIME,
-    `created_at`          DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP),
-    `modified_at`         DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `created_at`          DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP),
+    `modified_at`         DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `project_group_project` (
-    `project_group_project_id` INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    `project_group_id`         INTEGER             NOT NULL,
-    `project_id`               INTEGER             NOT NULL,
-    `modified_at`              DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `project_group_project_id` INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `project_group_id`         INT             NOT NULL,
+    `project_id`               INT             NOT NULL,
+    `created_at`               DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE TABLE `import_log` (
-    `import_id`          INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    `import_id`          INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     `original_file_name` TEXT,
-    `row_count`          INTEGER,
-    `succeeded`          BOOLEAN             NOT NULL DEFAULT FALSE,
-    `imported_at`        DATETIME            NOT NULL DEFAULT (CURRENT_TIMESTAMP)
+    `row_count`          INT,
+    `succeeded`          BOOL            NOT NULL DEFAULT FALSE,
+    `imported_at`        DATETIME        NOT NULL DEFAULT (CURRENT_TIMESTAMP)
 );
 
 CREATE UNIQUE INDEX `idx_schema_version` ON `_schema` (`schema_version`);
-
-CREATE UNIQUE INDEX `idx_account_username` ON `account` (`account_username`);
-
-CREATE UNIQUE INDEX `idx_account_email` ON `account` (`account_email`);
 
 CREATE UNIQUE INDEX `idx_profile_name` ON `profile` (`account_id`, `profile_name`);
 

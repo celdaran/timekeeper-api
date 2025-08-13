@@ -1,211 +1,189 @@
+Project timekeeper {
+  Note: 'Schema version 5.4.0'
+  database_type: 'MySQL'
+}
 
-Table "_schema" {
-  "schema_id" INTEGER [pk, not null, increment]
-  "schema_version" VARCHAR(31) [not null, unique]
-  "schema_descr" VARCHAR(255) [not null]
-  "commit_sha" VARCHAR(40) [not null]
-  "applied_at" DATETIME [not null, default: `current_timestamp`]
-  "applied_by" VARCHAR(255) [not null]
-  "status_id" INT [not null]
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+TablePartial softdeletes {
+  is_hidden BOOL [not null, default: false]
+  is_deleted BOOL [not null, default: false]
+  hidden_at DATETIME
+  deleted_at DATETIME
+}
+
+TablePartial timestamps {
+  created_at DATETIME [not null, default: `current_timestamp`]
+  modified_at DATETIME [not null, default: `current_timestamp`]
+}
+
+TablePartial entityattributes {
+  folder_id INT [not null]
+  sort_order INT [not null, default: 0]
+}
+
+Table _schema {
+  schema_id INT [pk, not null, increment]
+  schema_version VARCHAR(31) [not null, unique]
+  schema_descr VARCHAR(255) [not null]
+  commit_sha VARCHAR(40) [not null]
+  applied_at DATETIME [not null, default: `current_timestamp`]
+  applied_by VARCHAR(255) [not null]
+  status_id INT [not null]
+  ~timestamps
 
   Indexes {
-    schema_version [unique, name: "idx_schema_version"]
+    schema_version [name: "idx_schema_version", unique]
   }
 }
 
-Table "ref_date_preset" {
-  "ref_date_preset_id" INTEGER [pk, not null, increment]
-  "ref_date_preset_name" VARCHAR(255) [not null]
-  "ref_date_preset_descr" TEXT
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+Table ref_date_preset {
+  ref_date_preset_id INT [pk, not null, increment]
+  ref_date_preset_name VARCHAR(255) [not null]
+  ref_date_preset_descr TEXT
+  ~timestamps
 }
 
-Table "ref_group_by" {
-  "ref_group_by_id" INTEGER [pk, not null, increment]
-  "ref_group_by_name" VARCHAR(255) [not null]
-  "ref_group_by_descr" TEXT
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+Table ref_group_by {
+  ref_group_by_id INT [pk, not null, increment]
+  ref_group_by_name VARCHAR(255) [not null]
+  ref_group_by_descr TEXT
+  ~timestamps
 }
 
-Table "ref_time_display" {
-  "ref_time_display_id" INTEGER [pk, not null, increment]
-  "ref_time_display_name" VARCHAR(255) [not null]
-  "ref_time_display_descr" TEXT
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+Table ref_time_display {
+  ref_time_display_id INT [pk, not null, increment]
+  ref_time_display_name VARCHAR(255) [not null]
+  ref_time_display_descr TEXT
+  ~timestamps
 }
 
-Table "ref_time_zone" {
-  "ref_time_zone_id" INTEGER [pk, not null, increment]
-  "ref_time_zone_name" VARCHAR(255) [not null]
-  "ref_time_zone_descr" TEXT
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+Table ref_time_zone {
+  ref_time_zone_id INT [pk, not null, increment]
+  ref_time_zone_name VARCHAR(255) [not null]
+  ref_time_zone_descr TEXT
+  ~timestamps
 }
 
-Table "account" {
-  "account_id" INTEGER [pk, not null, increment]
-  "account_username" VARCHAR(255) [not null]
-  "account_password" VARCHAR(255) [not null]
-  "account_email" VARCHAR(320) [not null]
-  "account_descr" TEXT
-  "token" VARCHAR(36)
-  "project_id__last" INT
-  "location_id__last" INT
-  "is_admin" BOOLEAN [not null, default: false]
-  "is_hidden" BOOLEAN [not null, default: false]
-  "is_deleted" BOOLEAN [not null, default: false]
-  "hidden_at" DATETIME
-  "deleted_at" DATETIME
-  "login_at" DATETIME
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+Table account {
+  account_id INT [pk, not null, increment]
+  account_username VARCHAR(255) [not null, unique]
+  account_password VARCHAR(255) [not null]
+  account_email VARCHAR(320) [not null, unique]
+  account_descr TEXT
+  token VARCHAR(36)
+  project_id__last INT
+  location_id__last INT
+  is_admin BOOL [not null, default: false]
+  login_at DATETIME
+  ~softdeletes
+  ~timestamps
+}
+
+Table profile {
+  profile_id INT [pk, not null, increment]
+  profile_name VARCHAR(255) [not null]
+  profile_descr TEXT
+  account_id INT [not null]
+  ~softdeletes
+  ~timestamps
 
   Indexes {
-    account_username [unique, name: "idx_account_username"]
-    account_email [unique, name: "idx_account_email"]
+    (account_id, profile_name) [name: "idx_profile_name", unique]
   }
 }
 
-Table "profile" {
-  "profile_id" INTEGER [pk, not null, increment]
-  "profile_name" VARCHAR(255) [not null]
-  "profile_descr" TEXT
-  "account_id" INTEGER [not null]
-  "is_hidden" BOOLEAN [not null, default: false]
-  "is_deleted" BOOLEAN [not null, default: false]
-  "hidden_at" DATETIME
-  "deleted_at" DATETIME
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
-
-  Indexes {
-    (account_id, profile_name) [unique, name: "idx_profile_name"]
-  }
-}
-
-Table "folder" {
-  "folder_id" INTEGER [pk, not null, increment]
-  "folder_name" VARCHAR(255) [not null]
-  "folder_descr" TEXT
-  "profile_id" INTEGER [not null]
-  "folder_id__parent" INTEGER [not null]
-  "sort_order" INTEGER [not null, default: 0]
-  "is_system" BOOLEAN [not null, default: false]
-  "is_open" BOOLEAN [not null, default: true]
-  "is_hidden" BOOLEAN [not null, default: false]
-  "is_deleted" BOOLEAN [not null, default: false]
-  "hidden_at" DATETIME
-  "deleted_at" DATETIME
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+Table folder {
+  folder_id INT [pk, not null, increment]
+  folder_name VARCHAR(255) [not null]
+  folder_descr TEXT
+  profile_id INT [not null]
+  folder_id__parent INT [not null]
+  sort_order INT [not null, default: 0]
+  is_system BOOL [not null, default: false]
+  is_open BOOL [not null, default: true]
+  ~softdeletes
+  ~timestamps
 
   Indexes {
     profile_id [name: "idx_folder_profile_id"]
     folder_id__parent [name: "idx_folder_parent_id"]
-    (folder_name, folder_id__parent, profile_id) [unique, name: "idx_folder_name"]
+    (folder_name, folder_id__parent, profile_id) [name: "idx_folder_name", unique]
   }
 }
 
-Table "activity" {
-  "activity_id" INTEGER [pk, not null, increment]
-  "activity_name" VARCHAR(255) [not null]
-  "activity_descr" TEXT
-  "folder_id" INTEGER [not null]
-  "sort_order" INTEGER [not null, default: 0]
-  "is_hidden" BOOLEAN [not null, default: false]
-  "is_deleted" BOOLEAN [not null, default: false]
-  "hidden_at" DATETIME
-  "deleted_at" DATETIME
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+Table activity {
+  activity_id INT [pk, not null, increment]
+  activity_name VARCHAR(255) [not null]
+  activity_descr TEXT
+  ~entityattributes
+  ~softdeletes
+  ~timestamps
 
   Indexes {
     folder_id [name: "idx_activity_folder_id"]
-    (folder_id, activity_name) [unique, name: "idx_activity_name"]
+    (folder_id, activity_name) [name: "idx_activity_name", unique]
   }
 }
 
-Table "location" {
-  "location_id" INTEGER [pk, not null, increment]
-  "location_name" VARCHAR(255) [not null]
-  "location_descr" TEXT
-  "folder_id" INTEGER [not null]
-  "sort_order" INTEGER [not null, default: 0]
-  "is_hidden" BOOLEAN [not null, default: false]
-  "is_deleted" BOOLEAN [not null, default: false]
-  "hidden_at" DATETIME
-  "deleted_at" DATETIME
-  "ref_time_zone_id" INTEGER [not null]
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+Table location {
+  location_id INT [pk, not null, increment]
+  location_name VARCHAR(255) [not null]
+  location_descr TEXT
+  ref_time_zone_id INT [not null]
+  ~entityattributes
+  ~softdeletes
+  ~timestamps
 
   Indexes {
     folder_id [name: "idx_location_folder_id"]
-    (folder_id, location_name) [unique, name: "idx_location_name"]
+    (folder_id, location_name) [name: "idx_location_name", unique]
   }
 }
 
-Table "project" {
-  "project_id" INTEGER [pk, not null, increment]
-  "project_name" VARCHAR(255) [not null]
-  "project_descr" TEXT
-  "folder_id" INTEGER [not null]
-  "sort_order" INTEGER [not null, default: 0]
-  "is_hidden" BOOLEAN [not null, default: false]
-  "is_deleted" BOOLEAN [not null, default: false]
-  "hidden_at" DATETIME
-  "deleted_at" DATETIME
-  "activity_id__last" INTEGER
-  "external_ident" TEXT
-  "external_url" TEXT
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+Table project {
+  project_id INT [pk, not null, increment]
+  project_name VARCHAR(255) [not null]
+  project_descr TEXT
+  activity_id__last INT
+  external_ident TEXT
+  external_url TEXT
+  ~entityattributes
+  ~softdeletes
+  ~timestamps
 
   Indexes {
     folder_id [name: "idx_project_folder_id"]
-    (folder_id, project_name) [unique, name: "idx_project_name"]
+    (folder_id, project_name) [name: "idx_project_name", unique]
   }
 }
 
-Table "tag" {
-  "tag_id" INTEGER [pk, not null, increment]
-  "tag_name" VARCHAR(255) [not null]
-  "tag_descr" TEXT
-  "folder_id" INTEGER [not null]
-  "sort_order" INTEGER [not null, default: 0]
-  "is_hidden" BOOLEAN [not null, default: false]
-  "is_deleted" BOOLEAN [not null, default: false]
-  "hidden_at" DATETIME
-  "deleted_at" DATETIME
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+Table tag {
+  tag_id INT [pk, not null, increment]
+  tag_name VARCHAR(255) [not null]
+  tag_descr TEXT
+  ~entityattributes
+  ~softdeletes
+  ~timestamps
 
   Indexes {
     folder_id [name: "idx_tag_folder_id"]
-    (folder_id, tag_name) [unique, name: "idx_tag_name"]
+    (folder_id, tag_name) [name: "idx_tag_name", unique]
   }
 }
 
-Table "journal" {
-  "journal_id" INTEGER [pk, not null, increment]
-  "start_time" DATETIME [not null]
-  "stop_time" DATETIME [not null]
-  "duration" INTEGER [not null]
-  "memo" TEXT
-  "profile_id" INTEGER [not null]
-  "project_id" INTEGER [not null]
-  "activity_id" INTEGER [not null]
-  "location_id" INTEGER [not null]
-  "is_locked" BOOLEAN [not null, default: false]
-  "is_ignored" BOOLEAN [not null, default: false]
-  "is_reconciled" BOOLEAN [not null, default: false]
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+Table journal {
+  journal_id INT [pk, not null, increment]
+  start_time DATETIME [not null]
+  stop_time DATETIME [not null]
+  duration INT [not null]
+  memo TEXT
+  profile_id INT [not null]
+  project_id INT [not null]
+  activity_id INT [not null]
+  location_id INT [not null]
+  is_locked BOOL [not null, default: false]
+  is_ignored BOOL [not null, default: false]
+  is_reconciled BOOL [not null, default: false]
+  ~timestamps
 
   Indexes {
     profile_id [name: "idx_journal_profile_id"]
@@ -215,83 +193,79 @@ Table "journal" {
   }
 }
 
-Table "journal_tag" {
-  "journal_tag_id" INTEGER [pk, not null, increment]
-  "journal_id" INTEGER [not null]
-  "tag_id" INTEGER [not null]
-  "created_at" DATETIME [not null, default: `current_timestamp`]
+Table journal_tag {
+  journal_tag_id INT [pk, not null, increment]
+  journal_id INT [not null]
+  tag_id INT [not null]
+  created_at DATETIME [not null, default: `current_timestamp`]
 }
 
-Table "project_group" {
-  "project_group_id" INTEGER [pk, not null, increment]
-  "project_group_name" VARCHAR(255) [not null]
-  "project_group_descr" TEXT
-  "account_id" INTEGER [not null]
-  "is_hidden" BOOLEAN [not null, default: false]
-  "is_deleted" BOOLEAN [not null, default: false]
-  "hidden_at" DATETIME
-  "deleted_at" DATETIME
-  "created_at" DATETIME [not null, default: `current_timestamp`]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+Table project_group {
+  project_group_id INT [pk, not null, increment]
+  project_group_name VARCHAR(255) [not null]
+  project_group_descr TEXT
+  account_id INT [not null]
+  ~softdeletes
+  ~timestamps
   Indexes {
-    (project_group_name, account_id) [unique, name: "idx_project_group_accounts"]
+    (project_group_name, account_id) [name: "idx_project_group_accounts", unique]
   }
 }
 
-Table "project_group_project" {
-  "project_group_project_id" INTEGER [pk, not null, increment]
-  "project_group_id" INTEGER [not null]
-  "project_id" INTEGER [not null]
-  "modified_at" DATETIME [not null, default: `current_timestamp`]
+Table project_group_project {
+  project_group_project_id INT [pk, not null, increment]
+  project_group_id INT [not null]
+  project_id INT [not null]
+  created_at DATETIME [not null, default: `current_timestamp`]
   Indexes {
-    (project_group_id, project_id) [unique, name: "idx_project_group_projects"]
+    (project_group_id, project_id) [name: "idx_project_group_projects", unique]
   }
 }
 
-Table "import_log" {
-  "import_id" INTEGER [pk, not null, increment]
-  "original_file_name" TEXT
-  "row_count" INTEGER
-  "succeeded" BOOLEAN [not null, default: false]
-  "imported_at" DATETIME [not null, default: `current_timestamp`]
+Table import_log {
+  import_id INT [pk, not null, increment]
+  original_file_name TEXT
+  row_count INT
+  succeeded BOOL [not null, default: false]
+  imported_at DATETIME [not null, default: `current_timestamp`]
 }
 
-Ref:"account"."account_id" < "profile"."account_id"
+Ref:account.account_id < profile.account_id
 
-Ref:"profile"."profile_id" < "folder"."profile_id"
+Ref:profile.profile_id < folder.profile_id
 
-Ref:"folder"."folder_id" < "folder"."folder_id__parent"
+Ref:folder.folder_id < folder.folder_id__parent
 
-Ref:"folder"."folder_id" < "activity"."folder_id"
+Ref:folder.folder_id < activity.folder_id
 
-Ref:"folder"."folder_id" < "location"."folder_id"
+Ref:folder.folder_id < location.folder_id
 
-Ref:"ref_time_zone"."ref_time_zone_id" < "location"."ref_time_zone_id"
+Ref:ref_time_zone.ref_time_zone_id < location.ref_time_zone_id
 
-Ref:"folder"."folder_id" < "project"."folder_id"
+Ref:folder.folder_id < project.folder_id
 
-Ref:"project"."project_id" < "account"."project_id__last"
+Ref:project.project_id < account.project_id__last
 
-Ref:"activity"."activity_id" < "project"."activity_id__last"
+Ref:activity.activity_id < project.activity_id__last
 
-Ref:"location"."location_id" < "account"."location_id__last"
+Ref:location.location_id < account.location_id__last
 
-Ref:"folder"."folder_id" < "tag"."folder_id"
+Ref:folder.folder_id < tag.folder_id
 
-Ref:"profile"."profile_id" < "journal"."profile_id"
+Ref:profile.profile_id < journal.profile_id
 
-Ref:"project"."project_id" < "journal"."project_id"
+Ref:project.project_id < journal.project_id
 
-Ref:"activity"."activity_id" < "journal"."activity_id"
+Ref:activity.activity_id < journal.activity_id
 
-Ref:"location"."location_id" < "journal"."location_id"
+Ref:location.location_id < journal.location_id
 
-Ref:"journal"."journal_id" < "journal_tag"."journal_id"
+Ref:journal.journal_id < journal_tag.journal_id
 
-Ref:"tag"."tag_id" < "journal_tag"."tag_id"
+Ref:tag.tag_id < journal_tag.tag_id
 
-Ref:"account"."account_id" < "project_group"."account_id"
+Ref:account.account_id < project_group.account_id
 
-Ref:"project_group"."project_group_id" < "project_group_project"."project_group_id"
+Ref:project_group.project_group_id < project_group_project.project_group_id
 
-Ref:"project"."project_id" < "project_group_project"."project_id"
+Ref:project.project_id < project_group_project.project_id

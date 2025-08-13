@@ -190,6 +190,7 @@ Table journal {
     project_id [name: "idx_journal_project_id"]
     activity_id [name: "idx_journal_activity_id"]
     location_id [name: "idx_journal_location_id"]
+    (start_time, profile_id) [name: "idx_journal_start_time", unique]
   }
 }
 

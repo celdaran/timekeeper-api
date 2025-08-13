@@ -237,6 +237,8 @@ CREATE INDEX `idx_journal_activity_id` ON `journal` (`activity_id`);
 
 CREATE INDEX `idx_journal_location_id` ON `journal` (`location_id`);
 
+CREATE UNIQUE INDEX `idx_journal_start_time` ON `journal` (`start_time`, `profile_id`);
+
 CREATE UNIQUE INDEX `idx_project_group_accounts` ON `project_group` (`project_group_name`, `account_id`);
 
 CREATE UNIQUE INDEX `idx_project_group_projects` ON `project_group_project` (`project_group_id`, `project_id`);

@@ -4,9 +4,11 @@ read -p "This will reset the database, destroying all data. Continue? (y/N) " -r
 
 if [[ $REPLY =~ ^[Yy]$ ]]
 then
+    read -p "Which environment? (dev/test/prod) " -r
+
     # Run the SQL to drop and rebuild database from scratch
     echo "Resetting the database..."
-    time mysql < reset-database.sql
+    time mysql --defaults-file=~/.mysql/$REPLY < reset-database.sql
 
     # Generate sysadmin user on the fly
     echo "Generating sysadmin user"
